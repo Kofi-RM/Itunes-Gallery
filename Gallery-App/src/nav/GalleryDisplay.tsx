@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
+import Card from "../components/Card";
 
 type Result = {
   trackId: number;
@@ -12,17 +13,23 @@ type Result = {
 
 function GalleryDisplay() {
   const [results, setResults] = useState<Result[]>([]);
-const [activeMedia, setActiveMedia] = useState<Result | null>(null);
+  const [activeMedia, setActiveMedia] = useState<Result | null>(null);
 
-// set variable for selected track
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
-useEffect(() => {
-console.log("Active Media:", activeMedia);
-}, [activeMedia]);
-  const onSubmit = async (
-    event: React.FormEvent<HTMLFormElement>
-  ) => {
-    event.preventDefault();
+  const [volume, setVolume] = useState(
+    Number(localStorage.getItem("galleryVolume")) || 0.5
+  );
+
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [progress, setProgress] = useState(0);
+
+  // -----------------------------
+  // SEARCH
+  // -----------------------------
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
     const searchInput = document.getElementById(
       "searchQuery"
@@ -32,61 +39,96 @@ console.log("Active Media:", activeMedia);
       "mediaType"
     ) as HTMLSelectElement;
 
-    const queryValue = searchInput.value
-      .trim()
-      .split(" ")
-      .join("+");
-
+    const queryValue = searchInput.value.trim().split(" ").join("+");
     const mediaType = mediaTypeSelect.value;
 
-    try {
-      const response = await axios.get(
-        `https://itunes.apple.com/search?media=${mediaType}&term=${queryValue}&limit=36`
-      );
-console.log(response.data.results);
-      setResults(response.data.results.slice(0, 36));
-    } catch (error) {
-      console.error(error);
-    }
-  }; // on submit function to fetch data from iTunes API based on search query and media type
+    const res = await axios.get(
+      `https://itunes.apple.com/search?media=${mediaType}&term=${queryValue}&limit=36`
+    );
 
+    setResults(res.data.results.slice(0, 36));
+  };
+
+  // -----------------------------
+  // PROGRESS TRACKING
+  // -----------------------------
+  useEffect(() => {
+    const media = audioRef.current || videoRef.current;
+    if (!media) return;
+
+    const update = () => {
+      setProgress(media.currentTime / media.duration || 0);
+    };
+
+    media.addEventListener("timeupdate", update);
+
+    return () => {
+      media.removeEventListener("timeupdate", update);
+    };
+  }, [activeMedia]);
+
+  // -----------------------------
+  // VOLUME PERSISTENCE
+  // -----------------------------
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = volume;
+    }
+    if (videoRef.current) {
+      videoRef.current.volume = volume;
+    }
+
+    localStorage.setItem("galleryVolume", String(volume));
+  }, [volume, activeMedia]);
+
+  // -----------------------------
+  // PLAY / PAUSE
+  // -----------------------------
+  const togglePlay = () => {
+    const media = audioRef.current || videoRef.current;
+    if (!media) return;
+
+    if (media.paused) {
+      media.play();
+      setIsPlaying(true);
+    } else {
+      media.pause();
+      setIsPlaying(false);
+    }
+  };
+
+  // -----------------------------
+  // SEEK
+  // -----------------------------
+  const seek = (e: React.MouseEvent<HTMLDivElement>) => {
+    const media = audioRef.current || videoRef.current;
+    if (!media || !media.duration) return;
+
+    const rect = e.currentTarget.getBoundingClientRect();
+    const percent = (e.clientX - rect.left) / rect.width;
+
+    media.currentTime = percent * media.duration;
+  };
+
+  // -----------------------------
+  // UI
+  // -----------------------------
   return (
     <div className="min-h-screen bg-black text-white pb-32">
       <div className="max-w-7xl mx-auto p-6">
-        <h1 className="text-5xl font-bold mb-8 text-white">
-          Gallery Live
-        </h1>
+        <h1 className="text-5xl font-bold mb-8">Gallery Live</h1>
 
-        <form
-          onSubmit={onSubmit}
-          className="flex gap-4 mb-8"
-        >  
-        {/* form for search input and media type selection */}
+        {/* SEARCH */}
+        <form onSubmit={onSubmit} className="flex gap-4 mb-8">
           <input
             id="searchQuery"
-            type="text"
+            className="flex-1 bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-3"
             placeholder="Search..."
-            className="
-              flex-1
-              bg-zinc-900
-              border
-              border-zinc-700
-              rounded-lg
-              px-4
-              py-3
-              outline-none
-            "
           />
 
           <select
             id="mediaType"
-            className="
-              bg-zinc-900
-              border
-              border-zinc-700
-              rounded-lg
-              px-4
-            "
+            className="bg-zinc-900 border border-zinc-700 rounded-lg px-4"
           >
             <option value="music">Music</option>
             <option value="podcast">Podcast</option>
@@ -95,197 +137,102 @@ console.log(response.data.results);
             <option value="software">Software</option>
             <option value="ebook">Ebook</option>
           </select>
-          {/* Select Button */}
-          <button
-            type="submit"
-            className="
-              bg-green-500
-              hover:bg-green-400
-              text-black
-              font-bold
-              px-6
-              rounded-lg
-            "
-          >
+
+          <button className="bg-green-500 text-black px-6 rounded-lg font-bold">
             Search
           </button>
-           {/* Search button */}
         </form>
 
+        {/* GRID */}
         {results.length > 0 ? (
-          <div className="grid grid-cols-6 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
             {results.map((result) => (
-              <div
+              <Card
                 key={result.trackId}
-                className="
-                  bg-zinc-900
-                  rounded-lg
-                  p-3
-                  hover:bg-zinc-800
-                  transition-colors
-                "
-              >
-                <div className="relative group">
-                  <img
-                    src={result.artworkUrl100.replace(
-                      "100x100",
-                      "600x600"
-                    )}
-                    alt={result.trackName}
-                    className="
-                      w-full
-                      aspect-square
-                      object-cover
-                      rounded-md
-                    "
-                  />
-
-                  {result.previewUrl && (
-                    <button
-                      onClick={() =>
-                        setActiveMedia(result)
-                      }
-                      className="
-                        relative
-                        bottom-20
-                      
-                        w-12
-                        h-12
-                        rounded-full
-                        bg-green-500
-                        text-black
-                        text-xl
-                        font-bold
-                        shadow-lg
-                        opacity-0
-                        translate-y-2
-                        group-hover:opacity-100
-                        group-hover:translate-y-0
-                        transition-all
-                        duration-200
-                      "
-                    >
-                      ▶
-                    </button>
-                  )}
-                </div>
-{/* If there is an preview, give hover button and set active media */}
-                <p
-                  className="
-                    mt-3
-                    font-semibold
-                    truncate
-                  "
-                >
-                  {result.trackName}
-                </p>
-
-                <p
-                  className="
-                    text-zinc-400
-                    text-sm
-                    truncate
-                  "
-                >
-                  {result.artistName}
-                </p>
-              </div>
+                result={result}
+                onClick={() => setActiveMedia(result)}
+              />
             ))}
           </div>
         ) : (
-          <p className="text-zinc-400">
-            Search for something to begin.
-          </p>
+          <p className="text-zinc-400">Search for something...</p>
         )}
       </div>
 
-{/* Active Media Player Banner at Bottom */}
+      {/* ----------------------------- */}
+      {/* BOTTOM PLAYER */}
+      {/* ----------------------------- */}
       {activeMedia && (
-        <div
-          className="
-            fixed
-            bottom-0
-            left-0
-            right-0
-            h-24
-            bg-zinc-950
-            border-t
-            border-zinc-800
-            flex
-            items-center
-            gap-4
-            px-6
-          "
-        >
+        <div className="fixed bottom-0 left-0 right-0 h-24 bg-zinc-950 border-t border-zinc-800 flex items-center gap-4 px-6">
           
+          {/* ART */}
           <img
-            src={activeMedia.artworkUrl100.replace(
-              "100x100",
-              "300x300"
-            )}
-            alt={activeMedia.trackName}
-            className="
-              w-16
-              h-16
-              rounded
-            "
+            src={activeMedia.artworkUrl100.replace("100x100", "300x300")}
+            className="w-16 h-16 rounded"
           />
-  {/* Image and Track Info */}
-          <div className="w-60">
-            <h3 className="font-semibold truncate">
-              {activeMedia.trackName}
-            </h3>
-
-            <p
-              className="
-                text-zinc-400
-                text-sm
-                truncate
-              "
-            >
-              {activeMedia.artistName}
-            </p>
+          <div className="flex-1">
+          <p className="text-white font-semibold truncate">
+            {activeMedia.trackName}
+          </p>
+          <p className="text-zinc-400 text-sm">
+            {activeMedia.artistName}
+          </p>
           </div>
+          {/* MEDIA */}
+          {activeMedia.kind === "music-video" ||
+          activeMedia.kind === "tv-episode" ? (
+            <video
+              ref={videoRef}
+              src={activeMedia.previewUrl}
+              autoPlay
+              className="h-20 rounded"
+            />
+          ) : (
+            <audio
+              ref={audioRef}
+              src={activeMedia.previewUrl}
+              autoPlay
+            />
+          )}
 
-{/* Audio Player */}
+          {/* CONTROLS */}
+          <div className="flex items-center gap-4 w-full">
+            
+            {/* PLAY */}
+            <button onClick={togglePlay} className="text-xl">
+              {isPlaying ? "⏸" : "▶"}
+            </button>
 
-         {activeMedia.kind === "music-video" || activeMedia.kind === "tv-episode" ? (
-      <video
-        src={activeMedia.previewUrl}
-        controls
-        autoPlay
-        className="h-24 rounded"
-      />
-    ) : (
-   <audio
+            {/* SEEK BAR */}
+            <div
+              className="flex-1 h-2 bg-zinc-700 rounded cursor-pointer"
+              onClick={seek}
+            >
+              <div
+                className="h-2 bg-green-500 rounded"
+                style={{ width: `${progress * 100}%` }}
+              />
+            </div>
 
-            key={activeMedia.previewUrl}
+            {/* VOLUME */}
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.01"
+              value={volume}
+              onChange={(e) => setVolume(Number(e.target.value))}
+              className="w-24"
+            />
 
-            controls
-
-            autoPlay
-
-            src={activeMedia.previewUrl}
-
-            className="flex-1"
-
-          />
-    )}
-
-
-          <button
-            onClick={() =>
-              setActiveMedia(null)
-            }
-            className="
-              text-zinc-400
-              hover:text-white
-              text-xl
-            "
-          >
-            ✕
-          </button>
-        
+            {/* CLOSE */}
+            <button
+              onClick={() => setActiveMedia(null)}
+              className="text-zinc-400 hover:text-white text-xl"
+            >
+              ✕
+            </button>
+          </div>
         </div>
       )}
     </div>
