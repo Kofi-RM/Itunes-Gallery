@@ -9,7 +9,7 @@ function Card({ result, onClick }: CardProps) {
 
     return (
         <div
-                key={result.trackId}
+              
                 className="
                   bg-zinc-900
                   rounded-lg
