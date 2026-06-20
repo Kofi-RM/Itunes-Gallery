@@ -2,13 +2,15 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { Result } from "../type/Result";
 
 export function useMediaPlayer() {
+   
   const [activeMedia, setActiveMedia] = useState<Result | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
 
-  const [volume, setVolume] = useState(1);
+  
+ 
 const mediaRef = useRef<HTMLAudioElement | HTMLVideoElement | null>(null);
 
   
@@ -16,6 +18,7 @@ const mediaRef = useRef<HTMLAudioElement | HTMLVideoElement | null>(null);
 const loadMedia = useCallback((media: Result | null) => {
   if (!media) {
     mediaRef.current?.pause();
+
     setActiveMedia(null);
     setIsPlaying(false);
     setCurrentTime(0);
@@ -24,15 +27,37 @@ const loadMedia = useCallback((media: Result | null) => {
   }
 
   setActiveMedia(media);
+}, []);
 
+useEffect(() => {
   const mediaEl = mediaRef.current;
-  if (!mediaEl) return;
+
+  if (!mediaEl || !activeMedia) return;
 
   mediaEl.pause();
-  mediaEl.src = media.previewUrl;
+  mediaEl.src = activeMedia.previewUrl;
+
+  mediaEl.onloadedmetadata = async () => {
+    setDuration(mediaEl.duration || 0);
+
+    try {
+      await mediaEl.play();
+      setIsPlaying(true);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  mediaEl.ontimeupdate = () => {
+    setCurrentTime(mediaEl.currentTime);
+  };
+
+  mediaEl.onended = () => {
+    setIsPlaying(false);
+  };
+
   mediaEl.load();
-  mediaEl.play().then(() => setIsPlaying(true));
-}, []);
+}, [activeMedia]);
 
   // PLAY / PAUSE
  const togglePlay = useCallback(() => {
@@ -53,13 +78,6 @@ const seek = useCallback((time: number) => {
   mediaRef.current.currentTime = time;
   setCurrentTime(time);
 }, []);
-
-  // VOLUME
-  useEffect(() => {
-    if (mediaRef.current) {
-      mediaRef.current.volume = volume;
-    }
-  }, [volume]);
 
   // CLEANUP
   useEffect(() => {
@@ -112,8 +130,7 @@ const seek = useCallback((time: number) => {
     duration,
     progress,
 
-    volume,
-    setVolume,
+    
     mediaRef,
     seek,
   };
