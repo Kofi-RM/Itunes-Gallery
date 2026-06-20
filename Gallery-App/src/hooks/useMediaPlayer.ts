@@ -4,79 +4,117 @@ import type { Result } from "../type/Result";
 export function useMediaPlayer() {
   const [activeMedia, setActiveMedia] = useState<Result | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+
   const [volume, setVolume] = useState(1);
-  const [progress, setProgress] = useState(0);
+const mediaRef = useRef<HTMLAudioElement | HTMLVideoElement | null>(null);
 
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  
 
-  // Load / switch media
-  const loadMedia = useCallback((media: Result) => {
-    setActiveMedia(media);
-    setProgress(0);
+const loadMedia = useCallback((media: Result | null) => {
+  if (!media) {
+    mediaRef.current?.pause();
+    setActiveMedia(null);
     setIsPlaying(false);
+    setCurrentTime(0);
+    setDuration(0);
+    return;
+  }
 
-    if (!audioRef.current) {
-      audioRef.current = new Audio(media.previewUrl);
-    } else {
-      audioRef.current.src = media.previewUrl;
-    }
+  setActiveMedia(media);
 
-    audioRef.current.load();
-  }, []);
+  const mediaEl = mediaRef.current;
+  if (!mediaEl) return;
 
-  // Play / Pause toggle
-  const togglePlay = useCallback(() => {
-    if (!audioRef.current || !activeMedia) return;
+  mediaEl.pause();
+  mediaEl.src = media.previewUrl;
+  mediaEl.load();
+  mediaEl.play().then(() => setIsPlaying(true));
+}, []);
 
-    if (isPlaying) {
-      audioRef.current.pause();
-      setIsPlaying(false);
-    } else {
-      audioRef.current.play();
-      setIsPlaying(true);
-    }
-  }, [isPlaying, activeMedia]);
+  // PLAY / PAUSE
+ const togglePlay = useCallback(() => {
+  if (!mediaRef.current) return;
 
-  // Volume control
+  if (isPlaying) {
+    mediaRef.current.pause();
+    setIsPlaying(false);
+  } else {
+    mediaRef.current.play();
+    setIsPlaying(true);
+  }
+}, [isPlaying]);
+
+  // SEEK
+const seek = useCallback((time: number) => {
+  if (!mediaRef.current) return;
+  mediaRef.current.currentTime = time;
+  setCurrentTime(time);
+}, []);
+
+  // VOLUME
   useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = volume;
+    if (mediaRef.current) {
+      mediaRef.current.volume = volume;
     }
   }, [volume]);
 
-  // Progress tracking
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    const update = () => {
-      if (audio.duration) {
-        setProgress(audio.currentTime / audio.duration);
-      }
-    };
-
-    audio.addEventListener("timeupdate", update);
-
-    return () => {
-      audio.removeEventListener("timeupdate", update);
-    };
-  }, [activeMedia]);
-
-  // Cleanup on unmount
+  // CLEANUP
   useEffect(() => {
     return () => {
-      audioRef.current?.pause();
-      audioRef.current = null;
+      mediaRef.current?.pause();
+      mediaRef.current = null;
     };
   }, []);
 
+  useEffect(() => {
+  const media = mediaRef.current;
+  if (!media || !activeMedia) return;
+
+  // reset
+  setCurrentTime(0);
+  setDuration(0);
+
+  const onTimeUpdate = () => {
+    setCurrentTime(media.currentTime);
+  };
+
+  const onLoaded = () => {
+    setDuration(media.duration || 0);
+  };
+
+  const onEnd = () => {
+    setIsPlaying(false);
+  };
+
+  media.addEventListener("timeupdate", onTimeUpdate);
+  media.addEventListener("loadedmetadata", onLoaded);
+  media.addEventListener("ended", onEnd);
+
+  return () => {
+    media.removeEventListener("timeupdate", onTimeUpdate);
+    media.removeEventListener("loadedmetadata", onLoaded);
+    media.removeEventListener("ended", onEnd);
+  };
+}, [activeMedia]);
+  const progress = duration ? currentTime / duration : 0;
+
   return {
     activeMedia,
-    setActiveMedia: loadMedia, // important: force usage through loader
+    setActiveMedia: loadMedia,
+
     isPlaying,
     togglePlay,
+
+    currentTime,
+    duration,
+    progress,
+
     volume,
     setVolume,
-    progress,
+    mediaRef,
+    seek,
   };
 }
