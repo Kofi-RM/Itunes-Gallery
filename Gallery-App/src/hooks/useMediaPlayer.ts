@@ -27,6 +27,7 @@ const loadMedia = useCallback((media: Result | null) => {
   }
 
   setActiveMedia(media);
+  console.log("set active media", media);
 }, []);
 
 useEffect(() => {

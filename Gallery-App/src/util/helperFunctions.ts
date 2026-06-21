@@ -28,8 +28,8 @@ type onSubmitType =  {
     const res = await axios.get(
       `https://itunes.apple.com/search?media=${mediaType}&term=${queryValue}&limit=36`
     );
-
-    setResults(res.data.results.slice(0, 36));
+console.log(res.data.results);
+    setResults(res.data.results.slice(0, 50));
   };
 
 

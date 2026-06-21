@@ -13,7 +13,7 @@ function GalleryDisplay() {
     Number(localStorage.getItem("galleryVolume")) || 0.5
   );
 
-  const [isDragging, setIsDragging] = useState(false);
+  
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   const {  onSubmit} = helperFunctions;
@@ -27,32 +27,6 @@ function GalleryDisplay() {
 
     localStorage.setItem("galleryVolume", String(volume));
   }, [volume, player.activeMedia]);
-
-  useEffect(() => {
-    const handleMove = (e: MouseEvent) => {
-      if (!isDragging) return;
-
-      const media = player.mediaRef.current;
-      const bar = document.getElementById("scrubber");
-      if (!media || !bar || !media.duration) return;
-
-      const rect = bar.getBoundingClientRect();
-      const percent = (e.clientX - rect.left) / rect.width;
-
-      media.currentTime =
-        Math.max(0, Math.min(1, percent)) * media.duration;
-    };
-
-    const stop = () => setIsDragging(false);
-
-    window.addEventListener("mousemove", handleMove);
-    window.addEventListener("mouseup", stop);
-
-    return () => {
-      window.removeEventListener("mousemove", handleMove);
-      window.removeEventListener("mouseup", stop);
-    };
-  }, [isDragging, player.mediaRef]);
 
   const OnSelect = (result: Result) => {
 
@@ -111,11 +85,6 @@ function GalleryDisplay() {
           >
             <MediaPlayer
               activeMedia={player.activeMedia}
-              isPlaying={player.isPlaying}
-              togglePlay={player.togglePlay}
-              currentTime={player.currentTime}
-              duration={player.duration}
-              progress={player.progress}
               volume={volume}
               setVolume={setVolume}
               seek={player.seek}
@@ -123,6 +92,11 @@ function GalleryDisplay() {
               setActiveMedia={player.setActiveMedia}
               isFullscreen={isFullscreen}
               setIsFullscreen={setIsFullscreen}
+              isPlaying={player.isPlaying}
+              togglePlay={player.togglePlay}
+              duration={player.duration}
+              currentTime={player.currentTime}
+              progress={player.progress}
             />
           </div>
         </>

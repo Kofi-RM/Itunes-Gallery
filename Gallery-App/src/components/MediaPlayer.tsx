@@ -1,20 +1,20 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import type { Result } from "../type/Result";
 import helperFunctions from "../util/helperFunctions";
+import PlayerControls from "./PlayerControls";
 
 type Props = {
     activeMedia: Result | null;
     isPlaying: boolean;
     togglePlay: () => void;
 
-    currentTime: number;
-    duration: number;
-    progress: number;
-
     volume: number;
     setVolume: (v: number) => void;
 
     seek: (t: number) => void;
+    duration: number;
+    currentTime: number;
+    progress: number;
     mediaRef: React.RefObject<HTMLVideoElement | HTMLAudioElement | null>;
     setActiveMedia: (m: Result | null) => void;
     isFullscreen: boolean;
@@ -24,32 +24,21 @@ type Props = {
 const isVideo = helperFunctions.isVideo;
 
 export default function MediaPlayer({
-    activeMedia,
-    isPlaying,
-    togglePlay,
-    currentTime,
-    duration,
-    progress,
+    activeMedia,  
     volume,
     setVolume,
-    seek,
     mediaRef,
     setActiveMedia,
     isFullscreen,
     setIsFullscreen,
+    isPlaying,
+    togglePlay,
+    seek,
+    duration,
+    currentTime,
+    progress
 }: Props) {
     
-
-    const [hoverTime, setHoverTime] = useState<number | null>(null);
-    const [hoverPercent, setHoverPercent] = useState<number | null>(null);
-
-    const formatTime = helperFunctions.formatTime;
-
-    const getPercentFromEvent = (e: React.MouseEvent<HTMLDivElement>) => {
-  const rect = e.currentTarget.getBoundingClientRect();
-  const percent = (e.clientX - rect.left) / rect.width;
-  return Math.max(0, Math.min(1, percent));
-};
 
 useEffect(() => {
   const media = mediaRef.current;
@@ -99,75 +88,25 @@ useEffect(() => {
                     />
                 </>
             )}
-
-            {/* PLAY BUTTON */}
-            <button onClick={togglePlay} className="text-xl">
-                {isPlaying ? "⏸" : "▶"}
-            </button>
-
-            {/* TIME */}
-            <div className="text-xs text-zinc-400 w-24 text-center">
-                {formatTime(currentTime)} / {formatTime(duration)}
-            </div>
-
-            {/* SCRUBBER */}
-            <div
-               onMouseMove={(e) => {
-  const percent = getPercentFromEvent(e);
-
-  setHoverTime(percent * duration);
-  setHoverPercent(percent);
-}}
-                onMouseLeave={() => {
-                    setHoverTime(null);
-                    setHoverPercent(null);
-                }}
-                onClick={(e) => {
-  const percent = getPercentFromEvent(e);
-  seek(percent * duration);
-}}
-                className="relative flex-1 h-2 bg-zinc-700 rounded cursor-pointer"
-            >
-                {/* progress bar */}
-                <div
-                    className="h-2 bg-green-500 rounded"
-                    style={{ width: `${progress * 100}%` }}
-                />
-
-                {/* hover tooltip */}
-                {hoverTime !== null && hoverPercent !== null && (
-                    <div
-                        className="absolute -top-7 text-xs bg-black px-2 py-1 rounded pointer-events-none"
-                        style={{
-                            left: `${hoverPercent * 100}%`,
-                            transform: "translateX(-50%)",
-                        }}
-                    >
-                        {formatTime(hoverTime)}
-                    </div>
-                )}
-            </div>
-
-            {/* VOLUME */}
-            <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.01"
-                value={volume}
-                onChange={(e) => setVolume(Number(e.target.value))}
+<div className="flex flex-col text-sm overflow-hidden">
+    <p className="font-medium truncate">{activeMedia.trackName}</p>
+    <p className="text-zinc-400 truncate">{activeMedia.artistName}</p>
+</div>
+           <PlayerControls
+                volume={volume}
+                setVolume={setVolume}
+                setActiveMedia={setActiveMedia}
+                setIsFullscreen={setIsFullscreen}
+                isPlaying={isPlaying}
+                togglePlay={togglePlay}
+                seek={seek}
+                duration={duration}
+                currentTime={currentTime}
+                progress={progress}
+                activeMedia={activeMedia}
+                mediaRef={mediaRef}
             />
-
-            {/* CONTROLS */}
-            <div className="flex gap-2">
-                <button onClick={() => setIsFullscreen(true)}>
-                    ⛶
-                </button>
-
-                <button onClick={() => setActiveMedia(null)}>
-                    ✕
-                </button>
             </div>
-        </div>
+       
     );
 }
