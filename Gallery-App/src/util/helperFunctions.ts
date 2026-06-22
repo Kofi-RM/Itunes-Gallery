@@ -14,6 +14,7 @@ type onSubmitType =  {
   const onSubmit = async ({ e, setResults }: onSubmitType) => {
     e.preventDefault();
 
+    alert("press submit")
     const searchInput = document.getElementById(
       "searchQuery"
     ) as HTMLInputElement;
@@ -24,10 +25,11 @@ type onSubmitType =  {
 
     const queryValue = searchInput.value.trim().split(" ").join("+");
     const mediaType = mediaTypeSelect.value;
-
+    alert("before request");
     const res = await axios.get(
       `https://itunes.apple.com/search?media=${mediaType}&term=${queryValue}&limit=36`
     );
+    alert("after request");
 console.log(res.data.results);
     setResults(res.data.results.slice(0, 50));
   };

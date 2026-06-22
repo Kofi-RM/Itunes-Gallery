@@ -24,7 +24,7 @@ return(
             <option value="ebook">Ebook</option>
           </select>
 
-          <button className="w-full sm:w-auto bg-green-500 text-black px-6 rounded-lg font-bold">
+          <button type="submit"className="w-full sm:w-auto bg-green-500 text-black px-6 rounded-lg font-bold">
             Search
           </button>
         </form>
