@@ -2,6 +2,7 @@ import helperFunctions from "../util/helperFunctions";
 import type { Result } from "../type/Result";
 
 import { useState, useEffect } from "react";
+import VolumeIcon from "./VolumeIcon";
 
 type Props = {
     volume: number;
@@ -120,7 +121,10 @@ const PlayerControls = ({volume, setVolume, setActiveMedia, setIsFullscreen, isP
             </div>
 
             {/* VOLUME */}
-            <input
+            <div className="flex items-center gap-2 flex-col">
+                <VolumeIcon volume={volume} />
+                <input
+            className="w-20 sm:w-auto"
                 type="range"
                 min="0"
                 max="1"
@@ -129,6 +133,7 @@ const PlayerControls = ({volume, setVolume, setActiveMedia, setIsFullscreen, isP
                 onChange={(e) => setVolume(Number(e.target.value))}
             />
 
+            </div>
             {/* CONTROLS */}
             <div className="flex gap-2">
                 {isVideo(activeMedia) && (
