@@ -4,24 +4,30 @@ import MediumIcon from "../assets/icons/MediumIcon";
 import MaxIcon from "../assets/icons/MaxIcon";
 import { useEffect } from "react";
 
+import VolumeButton from "./VolumeButton";
 type Props = {
     volume: number;
+    toggleMute: () => void;
 };
 
-const VolumeIcon = ({ volume }: Props) => {
+const VolumeIcon = ({ volume, toggleMute }: Props) => {
+
+    const Icon =
+  volume === 0
+    ? MutedIcon
+    : volume < 0.5
+    ? LowIcon
+    : volume < 1
+    ? MediumIcon
+    : MaxIcon;
+
 useEffect(() => {
         console.log(volume);
     }, [volume]);
 
-    if (volume === 0) {
-        return <MutedIcon />;
-    } else if (volume < .50) {
-        return <LowIcon />;
-    } else if (volume < 1.0) {
-        return <MediumIcon />;
-    } else {
-        return <MaxIcon />;
-    }
+    return (
+    <VolumeButton onClick={toggleMute}><Icon></Icon></VolumeButton>
+    )
 }
 
 export default VolumeIcon;

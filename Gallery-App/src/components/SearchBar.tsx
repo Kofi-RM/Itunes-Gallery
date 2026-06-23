@@ -36,7 +36,7 @@ return(
       volume: m?.volume,
       muted: m?.muted,
       paused: m?.paused,
-      src: m?.src,
+    
     }));
   }}
 >

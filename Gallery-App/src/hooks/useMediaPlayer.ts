@@ -10,7 +10,7 @@ export function useMediaPlayer() {
   const [duration, setDuration] = useState(0);
 
    const [volume, setVolume] = useState(
-    Number(localStorage.getItem("galleryVolume")) || 0.5
+    Number(localStorage.getItem("volume")) || 0.5
   );
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -47,7 +47,7 @@ export function useMediaPlayer() {
 
     media.src = activeMedia.previewUrl;
     media.load();
-
+    media.volume = volume;
     const onLoaded = async () => {
       try {
         await media.play();
@@ -115,6 +115,13 @@ export function useMediaPlayer() {
     else media.pause();
   };
 
+  const toggleMute = () => {
+    const media = getMedia()
+    if(!media) return;
+    console.log("toggle pressed")
+    if (media.muted) media.muted = false;
+    else media.muted = true;
+  }
   const seek = (time: number) => {
     const media = getMedia();
     if (!media) return;
@@ -161,5 +168,6 @@ console.log("changed volume")
 
     audioRef,
     videoRef,
+    toggleMute
   };
 }
