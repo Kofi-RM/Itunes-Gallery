@@ -35,7 +35,7 @@ type onSubmitType =  {
         }
       }
     );
-    alert("after request");
+
 console.log(res.data.results);
     setResults(res.data.results.slice(0, 50));
   } catch (error) {
