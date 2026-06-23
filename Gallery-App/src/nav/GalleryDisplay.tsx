@@ -5,6 +5,7 @@ import helperFunctions from "../util/helperFunctions";
 import ResultsGrid from "../components/ResultsGrid";
 import type { Result } from "../type/Result";
 import SearchBar from "../components/SearchBar";
+import ProfileCard from "../components/ProfileCard";
 
 
 function GalleryDisplay() {
@@ -41,7 +42,7 @@ function GalleryDisplay() {
       <div className="max-w-7xl mx-auto p-6">
         <div className="flex justify-between">
           <h1 className="text-5xl font-bold mb-8">Gallery Live</h1>
-          <img className="rounded w-14 h-14"src="profileIcon.jpg"/>
+         <ProfileCard/>
         </div>
         
 

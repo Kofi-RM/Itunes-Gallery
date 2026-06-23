@@ -5,9 +5,10 @@ const jwt = require('jsonwebtoken');
  require("dotenv").config()
 const secret = process.env.JWT_SECRET;
 const expiration = '2h';
+const User = require("../models/User")
  
 module.exports = {
-  authMiddleware: function (req, res, next) {
+  authMiddleware: async function (req, res, next) {
     let token =
   req.body?.token ||
   req.query?.token ||
@@ -23,10 +24,17 @@ module.exports = {
  
     try {
       const { data } = jwt.verify(token, secret, { maxAge: expiration });
-      req.user = data;
-    } catch {
+      const user = await User.findById(data._id).select(
+  "_id username profileImageUrl"
+); // get profileImageUrl - data - from signed token doesnt have it
+
+req.user = user;
+    } catch (err) {
       console.log('Invalid token');
-      return res.status(401).json({ message: 'Invalid token.' });
+      return res.status(401).json({
+   
+    error: err.message
+  });
     }
  
     next();

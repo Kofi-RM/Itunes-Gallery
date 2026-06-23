@@ -25,6 +25,10 @@ const userSchema = new Schema({
     },
     githubId: {
 type:String,
+    },
+
+    profileImageUrl: {
+      type:String
     }
 }, {
     timestamps:true

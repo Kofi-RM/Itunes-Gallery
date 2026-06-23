@@ -7,6 +7,8 @@ const cors = require("cors")
 const search = require("./routes/search")
 const user = require("./routes/user")
 const bookmark = require("./routes/bookmarks")
+const upload = require("./routes/upload")
+
 require('dotenv').config();
  
 const app = express();
@@ -40,6 +42,8 @@ app.use(cors({
 app.use("/api/search", search);
 app.use("/api/user", user)
 app.use("/api/bookmark", bookmark)
+app.use("/api/upload", upload)
+
 // if we're in production, serve client/build as static assets
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../client/build')));

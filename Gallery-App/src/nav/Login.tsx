@@ -7,6 +7,7 @@ import axios from "axios";
 
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/useAuth";
+import isTokenExpired from "../auth/tokenCheck";
 function Login() {
   
   const [email, setEmail] = useState<string>("");
@@ -45,9 +46,12 @@ const {token, login} = useAuth()
   };
 
  useEffect(() => {
-  if (token) navigate("/");
-  
-}, [token, navigate]);
+  if (token && !isTokenExpired(token))  {
+    login(token)
+    navigate("/");
+    
+  }
+}, [token, navigate, login]);
   return (
   <div className="min-h-screen bg-slate-950 flex items-center justify-center p-6">
 <div className="absolute inset-0 overflow-hidden pointer-events-none">

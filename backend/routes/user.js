@@ -4,6 +4,8 @@ const  User  = require('../models/User');
 const { signToken } = require('../util/auth');
 const passport = require("../util/passport")
 
+const upload = require("../util/upload")
+const {authMiddleware} = require("../util/auth")
 require('dotenv').config();
 
 // GET /api/users - return all users (mainly for development / debugging).
@@ -17,6 +19,33 @@ router.get("/", async (req,res) => {
 })
   }
 })
+
+router.get("/me", authMiddleware, (req, res) => {
+  res.json(req.user);
+});
+
+
+router.get("/:id", async (req, res) => {
+  const user = await User.findById(req.params.id);
+  res.json(user);
+});
+
+router.post(
+  "/users/:id/avatar",
+  upload.single("image"),
+  async (req, res) => {
+    const imageUrl = req.file.path; // Cloudinary URL
+
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { profileImageUrl: imageUrl },
+      { new: true }
+    );
+
+    res.json(user);
+  }
+);
+
 
 // POST /api/users/register - create a new account and return a JWT
 router.post('/register', async (req, res) => {
