@@ -1,13 +1,13 @@
 
 import type { Result } from "../type/Result";
 import helperFunctions from "../util/helperFunctions";
-import VolumeIcon from "./VolumeIcon";
+
 import Slider from "./Slider";
 
 type Props = {
   activeMedia: Result | null;
-  isPlaying: boolean;
-  togglePlay: () => void;
+
+
 
   volume: number;
   setVolume: (v: number) => void;
@@ -18,89 +18,53 @@ type Props = {
   duration: number;
   progress: number;
 
-  audioRef: React.RefObject<HTMLAudioElement | null>;
-  videoRef: React.RefObject<HTMLVideoElement | null>;
+  
 
-  setActiveMedia: (m: Result | null) => void;
+  
 
-  setIsFullscreen: (f: boolean) => void;
-  toggleMute: () => void;
+ 
+
 };
 
 const PlayerControls = ({
-  volume,
-  setVolume,
-  isPlaying,
-  togglePlay,
+
+  
   seek,
   duration,
   currentTime,
   progress,
-  activeMedia,
-  setActiveMedia,
-  setIsFullscreen,
-  toggleMute
+  
 }: Props) => {
 
-   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  
 
 
   const formatTime = helperFunctions.formatTime;
 
 
 
-    const {isVideo} = helperFunctions
-    
+  
    
-  return (
-    <>
-      <button onClick={togglePlay}>
-        {isPlaying ? "⏸" : "▶"}
-      </button>
-
-      <div className="flex-shrink-0 w-20 text-sm">
-        {formatTime(currentTime)} /{" "}
-        {formatTime(duration)}
-      </div>
+return (
+    <div className="flex flex-col gap-2">
 
       {/* SCRUBBER */}
-     <Slider
-     duration={duration}
-     variant="media"
-  value={progress}
-  onChange={(v:number) => seek(v * duration)}
-  onCommit={(v:number) => seek(v * duration)}
-  formatTooltip={(v:number) =>
-    helperFunctions.formatTime(v * duration)
-  }
-/>
+      <div className="flex items-center gap-2">
+        <span className="text-xs text-zinc-500 tabular-nums">{formatTime(currentTime)}</span>
+        <Slider
+          className="flex-1"
+          duration={duration}
+          variant="media"
+          value={progress}
+          onChange={(v) => seek(v * duration)}
+          onCommit={(v) => seek(v * duration)}
+          formatTooltip={(v) => helperFunctions.formatTime(v * duration)}
+        />
+        <span className="text-xs text-zinc-500 tabular-nums">{formatTime(duration)}</span>
+      </div>
 
-<VolumeIcon toggleMute={toggleMute} volume={volume} />
-{ !isIOS &&
-    <Slider
-    variant="volume"
-  value={volume}
-  onChange={setVolume}
- 
- 
-/>}
-{ isVideo(activeMedia) &&
-      <button
-        onClick={() =>
-          setIsFullscreen(true)
-        }
-      >
-        ⛶
-      </button>
-}
-      <button
-        onClick={() =>
-          setActiveMedia(null)
-        }
-      >
-        ✕
-      </button>
-    </>
+    
+    </div>
   );
 };
 

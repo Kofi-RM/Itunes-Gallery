@@ -1,6 +1,9 @@
 import type { Result } from "../type/Result";
 import helperFunctions from "../util/helperFunctions";
+
+import VolumeIcon from "./VolumeIcon";
 import PlayerControls from "./PlayerControls";
+import Slider from "./Slider";
 
 type Props = {
   activeMedia: Result | null;
@@ -42,14 +45,20 @@ export default function MediaPlayer({
   progress,
   toggleMute
 }: Props) {
-  if (!activeMedia) return null;
+    
+  
 
+  if (!activeMedia) return null;
+ const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
   const isVideo = helperFunctions.isVideo(activeMedia);
 
   return (
-    <div className="flex items-center gap-4 w-full">
+    <div className="flex flex-col gap-2 w-full p-3 bg-zinc-900 rounded-xl">
 
-      {/* VIDEO */}
+  {/* TOP ROW — artwork, info, controls */}
+  <div className="flex items-center gap-3">
+
+   {/* VIDEO */}
       <video
         ref={videoRef}
         className={
@@ -73,29 +82,38 @@ export default function MediaPlayer({
         />
       )}
 
-      {/* INFO */}
-      <div className="flex flex-col text-sm">
-        <p className="truncate">{activeMedia.trackName}</p>
-        <p className="text-zinc-400 truncate">{activeMedia.artistName}</p>
-      </div>
 
-      {/* CONTROLS */}
-      <PlayerControls
-        volume={volume}
-        setVolume={setVolume}
-        setActiveMedia={setActiveMedia}
-        setIsFullscreen={setIsFullscreen}
-        isPlaying={isPlaying}
-        togglePlay={togglePlay}
-        seek={seek}
-        duration={duration}
-        currentTime={currentTime}
-        progress={progress}
-        activeMedia={activeMedia}
-        audioRef={audioRef}
-        videoRef={videoRef}
-        toggleMute={toggleMute}
-      />
+    {/* track info */}
+    <div className="flex flex-col min-w-0 flex-1">
+      <p className="text-sm font-medium truncate text-white">{activeMedia.trackName}</p>
+      <p className="text-xs text-zinc-400 truncate">{activeMedia.artistName}</p>
     </div>
+
+    {/* buttons */}
+    <div className="flex items-center gap-3 flex-shrink-0">
+        {/* VOLUME */}
+      {!isIOS && (
+        <Slider variant="volume" value={volume} onChange={setVolume} />
+      )}
+
+      <VolumeIcon toggleMute={toggleMute} volume={volume} />
+      <button onClick={togglePlay}>{isPlaying ? "⏸" : "▶"}</button>
+      {isVideo && <button onClick={() => setIsFullscreen(true)}>⛶</button>}
+      <button onClick={() => setActiveMedia(null)}>✕</button>
+    </div>
+  </div>
+
+   {/* SCRUBBER + VOLUME */}
+  <PlayerControls
+    volume={volume}
+    setVolume={setVolume}
+    seek={seek}
+    duration={duration}
+    currentTime={currentTime}
+    progress={progress}
+    activeMedia={activeMedia}
+  />
+
+</div>
   );
 }
