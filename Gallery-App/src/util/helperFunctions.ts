@@ -39,7 +39,7 @@ type onSubmitType =  {
 console.log(res.data.results);
     setResults(res.data.results.slice(0, 50));
   } catch (error) {
-    console.error("Error fetching search results:", error);
+    alert("Error fetching search results:" + error);
   }
   }
 
