@@ -1,8 +1,9 @@
 type SearchBarProps = {
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+  mediaRef: React.RefObject<HTMLVideoElement | HTMLAudioElement | null>;
 };
 
-const SearchBar = ({ onSubmit }: SearchBarProps) => {
+const SearchBar = ({ onSubmit, mediaRef }: SearchBarProps) => {
 return(
 <>
         <form onSubmit={onSubmit} className="flex flex-col sm:flex-row gap-4 mb-8 w-full">
@@ -27,6 +28,19 @@ return(
           <button type="submit" className="w-full sm:w-auto bg-green-500 text-black px-6 py-3 rounded-lg font-bold">
             Search
           </button>
+          <button
+  onClick={() => {
+    const m = mediaRef.current;
+    alert(JSON.stringify({
+      volume: m?.volume,
+      muted: m?.muted,
+      paused: m?.paused,
+      src: m?.src,
+    }));
+  }}
+>
+  debug audio
+</button>
         </form>
         </>
         )

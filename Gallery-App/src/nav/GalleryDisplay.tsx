@@ -26,6 +26,7 @@ function GalleryDisplay() {
   useEffect(() => {
 
     localStorage.setItem("galleryVolume", String(volume));
+  
   }, [volume, player.activeMedia]);
 
   const OnSelect = (result: Result) => {
@@ -41,7 +42,7 @@ function GalleryDisplay() {
       <div className="max-w-7xl mx-auto p-6">
         <h1 className="text-5xl font-bold mb-8">Gallery Live</h1>
 
-        <SearchBar onSubmit={(e) => onSubmit({ e, setResults })} />
+        <SearchBar onSubmit={(e) => onSubmit({ e, setResults })} mediaRef={player.mediaRef} />
         {/* GRID */}
         <ResultsGrid results={results} onSelect={OnSelect} />
       </div>
