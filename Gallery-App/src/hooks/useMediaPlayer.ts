@@ -157,6 +157,7 @@ console.log("changed volume")
 
     seek,
     adjustVolume,
+    volume,
 
     audioRef,
     videoRef,
