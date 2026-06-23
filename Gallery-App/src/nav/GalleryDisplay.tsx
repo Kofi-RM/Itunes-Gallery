@@ -1,4 +1,4 @@
-import { useState, useEffect} from "react";
+import { useState} from "react";
 import MediaPlayer from "../components/MediaPlayer";
 import { useMediaPlayer } from "../hooks/useMediaPlayer";
 import helperFunctions from "../util/helperFunctions";
@@ -9,10 +9,7 @@ import SearchBar from "../components/SearchBar";
 function GalleryDisplay() {
   const [results, setResults] = useState<Result[]>([]);
  
-  const [volume, setVolume] = useState(
-    Number(localStorage.getItem("galleryVolume")) || 0.5
-  );
-
+ 
   
   const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -23,16 +20,16 @@ function GalleryDisplay() {
   // -----------------------------
   // VOLUME PERSISTENCE
   // -----------------------------
-  useEffect(() => {
+  // useEffect(() => {
 
-    localStorage.setItem("galleryVolume", String(volume));
+  //   localStorage.setItem("galleryVolume", String(volume));
   
-  }, [volume, player.activeMedia]);
+  // }, [volume, player.activeMedia]);
 
   const OnSelect = (result: Result) => {
-
+    console.log(result);
     player.setActiveMedia(result);
-  
+
   };
   // -----------------------------
   // UI
@@ -42,7 +39,7 @@ function GalleryDisplay() {
       <div className="max-w-7xl mx-auto p-6">
         <h1 className="text-5xl font-bold mb-8">Gallery Live</h1>
 
-        <SearchBar onSubmit={(e) => onSubmit({ e, setResults })} mediaRef={player.mediaRef} />
+        <SearchBar onSubmit={(e) => onSubmit({ e, setResults })} audioRef={player.audioRef} videoRef={player.videoRef} />
         {/* GRID */}
         <ResultsGrid results={results} onSelect={OnSelect} />
       </div>
@@ -86,10 +83,11 @@ function GalleryDisplay() {
           >
             <MediaPlayer
               activeMedia={player.activeMedia}
-              volume={volume}
-              setVolume={setVolume}
+              volume={player.volume}
+              setVolume={player.adjustVolume}
               seek={player.seek}
-             mediaRef={player.mediaRef}
+              audioRef={player.audioRef}
+              videoRef={player.videoRef}
               setActiveMedia={player.setActiveMedia}
               isFullscreen={isFullscreen}
               setIsFullscreen={setIsFullscreen}
