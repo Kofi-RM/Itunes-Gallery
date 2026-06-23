@@ -66,21 +66,11 @@ function GalleryDisplay() {
 
           {/* Bottom player */}
           <div
-            className="
-        fixed
-        bottom-0
-        left-0
-        right-0
-        h-24
-        bg-zinc-950
-        border-t
-        border-zinc-800
-        flex
-        items-center
-        gap-4
-        px-4
-        z-50
-      "
+      className={
+    isFullscreen
+      ? "fixed inset-0 bg-zinc-950 z-50 flex flex-col items-center justify-center p-6"
+      : "fixed bottom-0 left-0 right-0 bg-zinc-950 border-t border-zinc-800 px-4 py-2 z-50"
+  }
           >
             <MediaPlayer
               activeMedia={player.activeMedia}
