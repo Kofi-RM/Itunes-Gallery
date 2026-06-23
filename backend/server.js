@@ -4,6 +4,7 @@ const express = require('express');
 const path = require('path');
 const db = require('./connection/db');
 const cors = require("cors")
+const search = require("./routes/search")
 
 require('dotenv').config();
  
@@ -33,7 +34,28 @@ app.use(cors({
   },
   credentials: true
 }));
+
+app.use("/api/search", search);
 // if we're in production, serve client/build as static assets
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../client/build')));
 }
+
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
+
+// Global error handler catches any errors that bubble up from route handlers.
+app.use((err, req, res, next) => {
+  console.error("🔥 GLOBAL ERROR:", err);
+
+  res.status(500).json({
+    message: err.message,
+  });
+});
+
+// Log every incoming request for easier debugging of API traffic.
+app.use((req, res, next) => {
+  console.log("➡️", req.method, req.url);
+  next();
+});

@@ -1,9 +1,9 @@
 
-const router = express.Router();
+const router = require("express").Router()
+const axios = require("axios")
 
 
-
-router.get("/api/search", async (req, res) => {
+router.get("/", async (req, res) => {
   const { term, media } = req.query;
 
   const response = await axios.get(
