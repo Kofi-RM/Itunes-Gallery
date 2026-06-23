@@ -71,7 +71,7 @@ const PlayerControls = ({volume, setVolume, setActiveMedia, setIsFullscreen, isP
       
         if (mediaRef.current) {
             mediaRef.current.volume = volume;
-            alert("Volume set to: " + volume+" for media: "+ JSON.stringify(mediaRef.current));
+            alert("Volume set to: " + volume+" for media: "+ mediaRef.current + mediaRef.current.volume);
 
         }
     }, [volume, mediaRef]);
