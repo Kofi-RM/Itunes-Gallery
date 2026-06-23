@@ -13,13 +13,16 @@ const Register = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false)
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 const {token, logout} = useAuth()
 const navigate = useNavigate()
-
+const [passwordError, setPasswordError] = useState("");
+const [validReg, setValidReg] = useState(false)
   useEffect(() => {
     if (!token) {
   
@@ -39,9 +42,10 @@ const navigate = useNavigate()
     try {
       setLoading(true);
       setError("");
-
+if (password != confirmPassword) throw Error;
+if (!emailRegex.test(email)) throw Error;
       // registration logic here
-      const {data} = await api.post( `/api/users/register`,
+      const {data} = await api.post( `/api/user/register`,
         {
             username,
           email,
@@ -50,20 +54,58 @@ const navigate = useNavigate()
 
      console.log(data)
       localStorage.setItem("token", data.token);
-         window.location.href = "/dashboard";
+      setValidReg(true)
+        
 
     } catch (err:unknown) {
          if (axios.isAxiosError(err)) {
-    setError(err.response?.data?.message || "Login failed");
+          setError("Failed to create account");
+          if ( username.length < 4) setError("Username must be at least 4 characters")
+            if (!isValidPassword(password)) setError(validatePassword(password))
+              if(password != confirmPassword) setError("Passwords do not match")
+                if (!emailRegex.test(email)) setError("Please enter a valid email")
   }
-      setError("Failed to create account");
+      
     } finally {
       setLoading(false);
     }
   };
 
-  
+  const isValidPassword = (password: string) => {
+  return (
+    password.length >= 8 &&
+    /[A-Z]/.test(password) &&
+    /[a-z]/.test(password) &&
+    /\d/.test(password) &&
+    /[!@#$%^&*(),.?":{}|<>]/.test(password)
+  );
+};
+  const validatePassword = (password: string) => {
+  if (password.length < 8)
+    return "Must be at least 8 characters";
 
+  if (!/[A-Z]/.test(password))
+    return "Must contain an uppercase letter";
+
+  if (!/[a-z]/.test(password))
+    return "Must contain a lowercase letter";
+
+  if (!/\d/.test(password))
+    return "Must contain a number";
+
+  if (!/[!@#$%^&*(),.?":{}|<>]/.test(password))
+    return "Must contain a special character";
+
+  return "";
+};
+
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+useEffect(() => {
+  if (validReg) {
+ window.location.href = "/dashboard";
+  }
+},[validReg])
   return (
     <div className="min-h-screen bg-slate-950 flex items-center justify-center p-6">
    <div className=" inset-0 overflow-hidden pointer-events-none">
@@ -165,7 +207,12 @@ const navigate = useNavigate()
     type={showPassword ? "text" : "password"}
     placeholder="••••••••"
     value={password}
-    onChange={(e) => setPassword(e.target.value)}
+    onChange={(e) =>{ const newPassword = e.target.value;
+
+  setPassword(newPassword);
+  setPasswordError(validatePassword(newPassword));
+    }
+    }
     required
     className="
       w-full
@@ -201,7 +248,56 @@ const navigate = useNavigate()
     {showPassword ? "Hide" : "Show"}
   </button>
 </div>
+{passwordError && (
+  <p className="mt-1 text-sm text-red-400">
+    {passwordError}
+  </p>
+)}
+<div className="relative">
+ <label className="block text-sm font-medium text-slate-300 mb-2">
+   Confirm Password
+  </label>
 
+  <input
+    type={showConfirm ? "text" : "password"}
+    placeholder="••••••••"
+    value={confirmPassword}
+    onChange={(e) => setConfirmPassword(e.target.value)}
+    required
+    className="
+      w-full
+      px-4
+      py-3
+      pr-12
+      bg-slate-800
+      border
+      border-slate-700
+      rounded-xl
+      text-slate-100
+      placeholder-slate-500
+      focus:outline-none
+      focus:ring-2
+      focus:ring-indigo-500
+      focus:border-indigo-500
+      transition
+    "
+  />
+
+  <button
+    type="button"
+    onClick={() => setShowConfirm((prev) => !prev)}
+    className="
+      absolute
+      right-3
+      top-[42px]
+      text-slate-400
+      hover:text-slate-200
+      text-sm
+    "
+  >
+    {showConfirm ? "Hide" : "Show"}
+  </button>
+</div>
             {error && (
               <div className="bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-xl p-3 text-sm">
                 {error}
