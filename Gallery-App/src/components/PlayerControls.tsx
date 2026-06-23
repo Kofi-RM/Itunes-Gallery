@@ -64,6 +64,7 @@ const PlayerControls = ({
 
       {/* SCRUBBER */}
      <Slider
+     duration={duration}
      variant="media"
   value={progress}
   onChange={(v:number) => seek(v * duration)}
