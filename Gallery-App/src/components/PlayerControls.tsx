@@ -68,8 +68,11 @@ const PlayerControls = ({volume, setVolume, setActiveMedia, setIsFullscreen, isP
       }, [isDragging, mediaRef]);
 
      useEffect(() => {
+          console.log("audio element:", mediaRef.current);
         if (mediaRef.current) {
             mediaRef.current.volume = volume;
+            alert("Volume set to: " + volume+" for media: "+ mediaRef);
+
         }
     }, [volume, mediaRef]);
 
