@@ -1,138 +1,181 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Result } from "../type/Result";
+import helperFunctions from "../util/helperFunctions";
 
 export function useMediaPlayer() {
-   
   const [activeMedia, setActiveMedia] = useState<Result | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
 
-  
- 
-const mediaRef = useRef<HTMLAudioElement | HTMLVideoElement | null>(null);
+   const [volume, setVolume] = useState(
+    Number(localStorage.getItem("volume")) || 0.5
+  );
+const [prevVolume, setPrevVolume] = useState(volume);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
 
-  
+  const isVideo = helperFunctions.isVideo;
 
-const loadMedia = useCallback((media: Result | null) => {
-  if (!media) {
-    mediaRef.current?.pause();
+  // ----------------------------
+  // GET ACTIVE MEDIA ELEMENT
+  // ----------------------------
+  const getMedia = useCallback(() => {
+    if (!activeMedia) return null;
+    return isVideo(activeMedia)
+      ? videoRef.current
+      : audioRef.current;
+  }, [activeMedia]);
 
-    setActiveMedia(null);
-    setIsPlaying(false);
-    setCurrentTime(0);
-    setDuration(0);
-    return;
-  }
+  // ----------------------------
+  // LOAD MEDIA (ONLY PLACE)
+  // ----------------------------
+  useEffect(() => {
+    if (!activeMedia) return;
 
-  setActiveMedia(media);
-  console.log("set active media", media);
-}, []);
+    const video = videoRef.current;
+    const audio = audioRef.current;
+    if (!video || !audio) return;
 
-useEffect(() => {
-  const mediaEl = mediaRef.current;
+    // stop both first (important)
+    video.pause();
+    audio.pause();
 
-  if (!mediaEl || !activeMedia) return;
+    const media = getMedia();
+    if (!media) return;
 
-  mediaEl.pause();
-  mediaEl.src = activeMedia.previewUrl;
+    media.src = activeMedia.previewUrl;
+    media.load();
+    media.volume = volume;
+    const onLoaded = async () => {
+      try {
+        await media.play();
+        setDuration(media.duration || 0);
+      } catch (e) {
+        console.log("play blocked:", e);
+      }
+    };
 
-  mediaEl.onloadedmetadata = async () => {
-    setDuration(mediaEl.duration || 0);
+    media.onloadedmetadata = onLoaded;
+  }, [activeMedia]);
 
-    try {
-      await mediaEl.play();
-      setIsPlaying(true);
-    } catch (err) {
-      console.error(err);
+  // ----------------------------
+  // GLOBAL EVENT LISTENERS (SYNC STATE)
+  // ----------------------------
+  useEffect(() => {
+    const audio = audioRef.current;
+    const video = videoRef.current;
+    if (!audio || !video) return;
+
+    const onPlay = () => setIsPlaying(true);
+    const onPause = () => setIsPlaying(false);
+
+    const onTime = () => {
+      const media = getMedia();
+      if (!media) return;
+      setCurrentTime(media.currentTime);
+    };
+
+    const onEnd = () => setIsPlaying(false);
+
+    audio.addEventListener("play", onPlay);
+    audio.addEventListener("pause", onPause);
+    video.addEventListener("play", onPlay);
+    video.addEventListener("pause", onPause);
+
+    audio.addEventListener("timeupdate", onTime);
+    video.addEventListener("timeupdate", onTime);
+
+    audio.addEventListener("ended", onEnd);
+    video.addEventListener("ended", onEnd);
+
+    return () => {
+      audio.removeEventListener("play", onPlay);
+      audio.removeEventListener("pause", onPause);
+      video.removeEventListener("play", onPlay);
+      video.removeEventListener("pause", onPause);
+
+      audio.removeEventListener("timeupdate", onTime);
+      video.removeEventListener("timeupdate", onTime);
+
+      audio.removeEventListener("ended", onEnd);
+      video.removeEventListener("ended", onEnd);
+    };
+  }, [activeMedia, getMedia]);
+
+  // ----------------------------
+  // CONTROLS
+  // ----------------------------
+  const togglePlay = () => {
+    const media = getMedia();
+    if (!media) return;
+
+    if (media.paused) media.play();
+    else media.pause();
+  };
+
+  const toggleMute = () => {
+    console.log("toggle")
+    const media = getMedia()
+    if(!media) return;
+    console.log("toggle pressed")
+    if (media.muted) {
+      media.muted = false;
+    setVolume(prevVolume);
     }
+    else {
+      setPrevVolume(volume)
+      media.muted = true;
+    setVolume(0);
+    }
+    }
+  const seek = (time: number) => {
+    const media = getMedia();
+    if (!media) return;
+
+    media.currentTime = time;
+    setCurrentTime(time);
   };
 
-  mediaEl.ontimeupdate = () => {
-    setCurrentTime(mediaEl.currentTime);
+  const adjustVolume = (v: number) => {
+    if (audioRef.current) audioRef.current.volume = v;
+    if (videoRef.current) videoRef.current.volume = v;
+
+    setVolume(v);
   };
 
-  mediaEl.onended = () => {
-    setIsPlaying(false);
-  };
-
-  mediaEl.load();
-}, [activeMedia]);
-
-  // PLAY / PAUSE
- const togglePlay = useCallback(() => {
-  if (!mediaRef.current) return;
-
-  if (isPlaying) {
-    mediaRef.current.pause();
-    setIsPlaying(false);
-  } else {
-    mediaRef.current.play();
-    setIsPlaying(true);
-  }
-}, [isPlaying]);
-
-  // SEEK
-const seek = useCallback((time: number) => {
-  if (!mediaRef.current) return;
-  mediaRef.current.currentTime = time;
-  setCurrentTime(time);
-}, []);
-
+  useEffect(() => {
+localStorage.setItem("volume", String(volume))
+console.log("changed volume")
+  },[volume])
+  // ----------------------------
   // CLEANUP
+  // ----------------------------
   useEffect(() => {
     return () => {
-      mediaRef.current?.pause();
-      mediaRef.current = null;
+      audioRef.current?.pause();
+      videoRef.current?.pause();
     };
   }, []);
 
-  useEffect(() => {
-  const media = mediaRef.current;
-  if (!media || !activeMedia) return;
-
-  // reset
-  setCurrentTime(0);
-  setDuration(0);
-
-  const onTimeUpdate = () => {
-    setCurrentTime(media.currentTime);
-  };
-
-  const onLoaded = () => {
-    setDuration(media.duration || 0);
-  };
-
-  const onEnd = () => {
-    setIsPlaying(false);
-  };
-
-  media.addEventListener("timeupdate", onTimeUpdate);
-  media.addEventListener("loadedmetadata", onLoaded);
-  media.addEventListener("ended", onEnd);
-
-  return () => {
-    media.removeEventListener("timeupdate", onTimeUpdate);
-    media.removeEventListener("loadedmetadata", onLoaded);
-    media.removeEventListener("ended", onEnd);
-  };
-}, [activeMedia]);
-  const progress = duration ? currentTime / duration : 0;
-
   return {
     activeMedia,
-    setActiveMedia: loadMedia,
+    setActiveMedia,
 
     isPlaying,
     togglePlay,
 
     currentTime,
     duration,
-    progress,
+    progress: duration ? currentTime / duration : 0,
 
-    
-    mediaRef,
     seek,
+    adjustVolume,
+    volume,
+
+    audioRef,
+    videoRef,
+    toggleMute
   };
 }
