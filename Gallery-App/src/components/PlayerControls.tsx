@@ -67,7 +67,12 @@ const PlayerControls = ({volume, setVolume, setActiveMedia, setIsFullscreen, isP
         };
       }, [isDragging, mediaRef]);
 
-     
+     useEffect(() => {
+        if (mediaRef.current) {
+            mediaRef.current.volume = volume;
+        }
+    }, [volume, mediaRef]);
+
   return (
 <>
 {/* PLAY BUTTON */}
@@ -131,6 +136,7 @@ const PlayerControls = ({volume, setVolume, setActiveMedia, setIsFullscreen, isP
                 step="0.01"
                 value={volume}
                 onChange={(e) => setVolume(Number(e.target.value))}
+                onInput={(e) => setVolume(Number(e.currentTarget.value))}
             />
 
             </div>
