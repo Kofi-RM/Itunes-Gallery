@@ -31,6 +31,7 @@ function GalleryDisplay() {
     player.setActiveMedia(result);
 
   };
+ 
   // -----------------------------
   // UI
   // -----------------------------
@@ -96,6 +97,7 @@ function GalleryDisplay() {
               duration={player.duration}
               currentTime={player.currentTime}
               progress={player.progress}
+              toggleMute = {player.toggleMute}
             />
           </div>
         </>

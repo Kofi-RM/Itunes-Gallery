@@ -12,7 +12,7 @@ export function useMediaPlayer() {
    const [volume, setVolume] = useState(
     Number(localStorage.getItem("volume")) || 0.5
   );
-
+const [prevVolume, setPrevVolume] = useState(volume);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
@@ -116,12 +116,20 @@ export function useMediaPlayer() {
   };
 
   const toggleMute = () => {
+    console.log("toggle")
     const media = getMedia()
     if(!media) return;
     console.log("toggle pressed")
-    if (media.muted) media.muted = false;
-    else media.muted = true;
-  }
+    if (media.muted) {
+      media.muted = false;
+    setVolume(prevVolume);
+    }
+    else {
+      setPrevVolume(volume)
+      media.muted = true;
+    setVolume(0);
+    }
+    }
   const seek = (time: number) => {
     const media = getMedia();
     if (!media) return;

@@ -8,6 +8,7 @@ import VolumeButton from "./VolumeButton";
 type Props = {
     volume: number;
     toggleMute: () => void;
+   
 };
 
 const VolumeIcon = ({ volume, toggleMute }: Props) => {
@@ -23,6 +24,7 @@ const VolumeIcon = ({ volume, toggleMute }: Props) => {
 
 useEffect(() => {
         console.log(volume);
+        
     }, [volume]);
 
     return (

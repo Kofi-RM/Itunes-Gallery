@@ -22,6 +22,7 @@ type Props = {
   setActiveMedia: (m: Result | null) => void;
   isFullscreen: boolean;
   setIsFullscreen: (f: boolean) => void;
+  toggleMute: () => void;
 };
 
 export default function MediaPlayer({
@@ -39,6 +40,7 @@ export default function MediaPlayer({
   duration,
   currentTime,
   progress,
+  toggleMute
 }: Props) {
   if (!activeMedia) return null;
 
@@ -92,6 +94,7 @@ export default function MediaPlayer({
         activeMedia={activeMedia}
         audioRef={audioRef}
         videoRef={videoRef}
+        toggleMute={toggleMute}
       />
     </div>
   );
