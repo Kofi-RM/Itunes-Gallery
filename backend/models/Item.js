@@ -6,13 +6,19 @@ const itemSchema = new Schema({
 kind: {type: String,
     required: true
 },
-artistId: {type: number},
-collectionId: {type: number},
+artistId: {type: Number},
+collectionId: {type: Number},
 artistName: {type: String},
 collectionName: {type: String},
 collectionArtistName: {type: String},
 trackName: {type: String},
-previewUrl: {type: String}
+previewUrl: {type: String},
+
+user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  }
 
 })
 

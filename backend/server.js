@@ -5,12 +5,14 @@ const path = require('path');
 const db = require('./connection/db');
 const cors = require("cors")
 const search = require("./routes/search")
-
+const user = require("./routes/user")
+const bookmark = require("./routes/bookmarks")
 require('dotenv').config();
  
 const app = express();
 const PORT = process.env.PORT || 3001;
  
+
 // Parse incoming form-encoded and JSON request bodies.
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -36,6 +38,8 @@ app.use(cors({
 }));
 
 app.use("/api/search", search);
+app.use("/api/user", user)
+app.use("/api/bookmark", bookmark)
 // if we're in production, serve client/build as static assets
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../client/build')));
@@ -53,6 +57,8 @@ app.use((err, req, res, next) => {
     message: err.message,
   });
 });
+
+
 
 // Log every incoming request for easier debugging of API traffic.
 app.use((req, res, next) => {
