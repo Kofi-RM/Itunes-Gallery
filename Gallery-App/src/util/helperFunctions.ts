@@ -1,5 +1,5 @@
 import type { Result } from "../type/Result";
-import axios from "axios";
+import api from "../api/api";
 
 const isVideo = (activeMedia: Result | null) => {
   if (!activeMedia) return false;
@@ -14,7 +14,7 @@ type onSubmitType =  {
   const onSubmit = async ({ e, setResults }: onSubmitType) => {
     e.preventDefault();
 
-    alert("press submit")
+   
     const searchInput = document.getElementById(
       "searchQuery"
     ) as HTMLInputElement;
@@ -23,17 +23,25 @@ type onSubmitType =  {
       "mediaType"
     ) as HTMLSelectElement;
 
-    const queryValue = searchInput.value.trim().split(" ").join("+");
+    const queryValue = searchInput.value.trim()
     const mediaType = mediaTypeSelect.value;
-    alert("before request");
-    const res = await axios.get(
-      `https://itunes.apple.com/search?media=${mediaType}&term=${queryValue}&limit=36`
+  try {
+    const res = await api.get(
+      `/api/search`, {
+        params: {
+          media: mediaType,
+          term: queryValue,
+          limit: 36
+        }
+      }
     );
     alert("after request");
 console.log(res.data.results);
     setResults(res.data.results.slice(0, 50));
-  };
-
+  } catch (error) {
+    console.error("Error fetching search results:", error);
+  }
+  }
 
   const formatTime = (time: number) => {
   if (!time || isNaN(time)) return "0:00";
