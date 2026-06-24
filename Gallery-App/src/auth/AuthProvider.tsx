@@ -15,17 +15,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.getItem("token")
   );
 
-  const [loggedIn, setLoggedIn] = useState(!token ? false : isTokenExpired(token))
+
+
+  const loggedIn = !!token && !isTokenExpired(token);
+  console.log(loggedIn)
 const [user, setUser] = useState<User | null>(null)
   const login = (newToken: string) => {
     setToken(newToken);
-    setLoggedIn(true)
+   
     localStorage.setItem("token", newToken);
   };
 
 const logout = useCallback(() => {
   setToken(null);
-  setLoggedIn(false)
+ 
   localStorage.removeItem("token");
 }, []);
 
@@ -52,8 +55,9 @@ useEffect(() => {
     const loadUser = async () => {
       try {
         if(loggedIn){
-            console.log("logged in")
+         
         const { data } = await api.get("api/user/me");
+        console.log(data)
         setUser(data);
         }
       } catch {
