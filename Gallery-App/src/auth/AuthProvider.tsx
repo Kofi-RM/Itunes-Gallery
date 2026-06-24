@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
 
   const loggedIn = !!token && !isTokenExpired(token);
-  console.log(loggedIn)
+  console.log(loggedIn + " logged in")
 const [user, setUser] = useState<User | null>(null)
   const login = (newToken: string) => {
     setToken(newToken);
@@ -56,7 +56,7 @@ useEffect(() => {
       try {
         if(loggedIn){
          
-        const { data } = await api.get("api/user/me");
+        const { data } = await api.get("api/users/me");
         console.log(data)
         setUser(data);
         }

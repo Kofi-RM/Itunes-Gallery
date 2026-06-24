@@ -45,7 +45,7 @@ const [validReg, setValidReg] = useState(false)
 if (password != confirmPassword) throw Error;
 if (!emailRegex.test(email)) throw Error;
       // registration logic here
-      const {data} = await api.post( `/api/user/register`,
+      const {data} = await api.post( `/api/users/register`,
         {
             username,
           email,

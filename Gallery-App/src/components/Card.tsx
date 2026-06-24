@@ -1,12 +1,17 @@
 import type {Result} from "../type/Result";
+import { useAuth } from "../auth/useAuth";
+
+import BookmarkFilled from "../assets/icons/BookmarkFilled";
+import BookmarkOutline from "../assets/icons/BookmarkOutline";
 type CardProps = {
   result: Result;
   onClick: () => void;
-  
+  bookmarked: boolean;
+  onBookmarkToggle: (result: Result) => void;
 };
 
-function Card({ result, onClick }: CardProps) {
-
+function Card({ result, onClick, bookmarked, onBookmarkToggle }: CardProps) {
+const {loggedIn} = useAuth()
     return (
         <div
               
@@ -24,6 +29,34 @@ function Card({ result, onClick }: CardProps) {
     alt={result.trackName}
     className="w-full aspect-square object-cover rounded-md"
   />
+   {loggedIn && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onBookmarkToggle(result);
+            }}
+            className="
+              absolute
+              top-2
+              left-2
+              z-20
+              opacity-0
+              group-hover:opacity-100
+              transition
+              hover:scale-110
+            "
+          >
+            {bookmarked ? (
+              <span className="text-yellow-400">
+                <BookmarkFilled />
+              </span>
+            ) : (
+              <span className="text-white">
+                <BookmarkOutline />
+              </span>
+            )}
+          </button>
+        )}
 
   {result.previewUrl && (
     <button

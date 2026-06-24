@@ -1,13 +1,14 @@
 
 const router = require("express").Router();
 
-const Item = require("../models/Item")
+const Bookmark = require("../models/Bookmark");
+
 
 const {authMiddleware} = require("../util/auth")
 
-router.get('/bookmarks', authMiddleware, async (req, res) => {
+router.get('/', authMiddleware, async (req, res) => {
     try {
-        const bookmarks = await Item.find({
+        const bookmarks = await Bookmark.find({
             user:req.user._id})
             console.log(bookmarks)
             res.json(bookmarks)
@@ -20,7 +21,7 @@ res.status.apply(400).json({
     // make project
 router.post('/', authMiddleware, async (req, res) => {
   try {
-    const bookmark = await Project.create({
+    const bookmark = await Bookmark.create({
         ...req.body,
         user: req.user._id
   });

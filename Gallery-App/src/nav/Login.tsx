@@ -25,7 +25,7 @@ const {token, login} = useAuth()
 
     try {
       const { data } = await api.post(
-        `/api/user/login`,
+        `/api/users/login`,
         {
           email,
           password,

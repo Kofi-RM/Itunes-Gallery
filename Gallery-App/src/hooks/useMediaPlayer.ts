@@ -147,7 +147,7 @@ const [prevVolume, setPrevVolume] = useState(volume);
 
   useEffect(() => {
 localStorage.setItem("volume", String(volume))
-console.log("changed volume")
+
   },[volume])
   // ----------------------------
   // CLEANUP

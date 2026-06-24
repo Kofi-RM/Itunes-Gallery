@@ -40,8 +40,8 @@ app.use(cors({
 }));
 
 app.use("/api/search", search);
-app.use("/api/user", user)
-app.use("/api/bookmark", bookmark)
+app.use("/api/users", user)
+app.use("/api/bookmarks", bookmark)
 app.use("/api/upload", upload)
 
 // if we're in production, serve client/build as static assets

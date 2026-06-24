@@ -4,14 +4,15 @@ import './index.css'
 import App from './App'
 import { BrowserRouter } from 'react-router-dom'
 import { AuthProvider } from './auth/AuthProvider'
-
+import { BookmarksProvider } from './bookmark/BookmarkProvider'
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
+    <BookmarksProvider>
     <AuthProvider>
 <App/>
     </AuthProvider>
-    
+    </BookmarksProvider>
     </BrowserRouter>
   
   </StrictMode>,

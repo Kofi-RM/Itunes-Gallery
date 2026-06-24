@@ -2,7 +2,7 @@ const mongoose = require("mongoose")
 const bcrypt = require("bcrypt")
 const {Schema} = mongoose;
 
-const itemSchema = new Schema({
+const bookmarkSchema = new Schema({
 kind: {type: String,
     required: true
 },
@@ -13,7 +13,7 @@ collectionName: {type: String},
 collectionArtistName: {type: String},
 trackName: {type: String},
 previewUrl: {type: String},
-
+trackId: {type:Number},
 user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
@@ -22,6 +22,6 @@ user: {
 
 })
 
-const Item = mongoose.models.Item || mongoose.model("Item", itemSchema);
+const Bookmark = mongoose.models.Item || mongoose.model("Bookmark", bookmarkSchema);
 
-module.exports = Item;
+module.exports = Bookmark;
