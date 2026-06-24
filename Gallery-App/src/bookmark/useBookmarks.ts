@@ -10,3 +10,5 @@ export const useBookmarks = () => {
 
   return context;
 };
+
+export default useBookmarks

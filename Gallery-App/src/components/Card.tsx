@@ -3,6 +3,7 @@ import { useAuth } from "../auth/useAuth";
 
 import BookmarkFilled from "../assets/icons/BookmarkFilled";
 import BookmarkOutline from "../assets/icons/BookmarkOutline";
+import useBookmarks from "../bookmark/useBookmarks";
 type CardProps = {
   result: Result;
   onClick: () => void;
@@ -10,7 +11,10 @@ type CardProps = {
   onBookmarkToggle: (result: Result) => void;
 };
 
-function Card({ result, onClick, bookmarked, onBookmarkToggle }: CardProps) {
+
+function Card({ result, onClick }: CardProps) {
+  const {toggleBookmark, isBookmarked} = useBookmarks()
+  const bookmarked = isBookmarked(result.trackId)
 const {loggedIn} = useAuth()
     return (
         <div
@@ -33,7 +37,7 @@ const {loggedIn} = useAuth()
           <button
             onClick={(e) => {
               e.stopPropagation();
-              onBookmarkToggle(result);
+              toggleBookmark(result);
             }}
             className="
               absolute

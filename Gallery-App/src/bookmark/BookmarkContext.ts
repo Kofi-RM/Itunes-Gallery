@@ -18,7 +18,7 @@ export type Bookmark = {
 type BookmarksContextType = {
   bookmarks: Bookmark[];
   toggleBookmark: (result: Result) => Promise<void>;
- 
+  isBookmarked: (trackId: number) => boolean;
 };
 
 export const BookmarksContext = createContext<BookmarksContextType | null>(null);

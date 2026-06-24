@@ -1,6 +1,6 @@
 import type { Result } from "../type/Result";
 import Card from "./Card";
-import useBookmarks from "../hooks/useBookmarks";
+import useBookmarks from "../bookmark/useBookmarks";
 
 type ResultsGridProps = {
   results: Result[];

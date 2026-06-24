@@ -6,13 +6,14 @@ import ResultsGrid from "../components/ResultsGrid";
 import type { Result } from "../type/Result";
 import SearchBar from "../components/SearchBar";
 import ProfileCard from "../components/ProfileCard";
-
+import { useAuth } from "../auth/useAuth";
+import { useNavigate } from "react-router-dom";
 
 function GalleryDisplay() {
   const [results, setResults] = useState<Result[]>([]);
  
- 
-  
+ const navigate = useNavigate()
+  const {loggedIn, logout} = useAuth()
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   const {  onSubmit} = helperFunctions;
@@ -42,6 +43,15 @@ function GalleryDisplay() {
       <div className="max-w-7xl mx-auto p-6">
         <div className="flex justify-between">
           <h1 className="text-5xl font-bold mb-8">Gallery Live</h1>
+         {loggedIn ? (
+  <button onClick={logout}>
+    Logout
+  </button>
+) : (
+  <button onClick={() => navigate("/login")}>
+    Login
+  </button>
+)}
          <ProfileCard/>
         </div>
         

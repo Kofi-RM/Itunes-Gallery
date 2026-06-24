@@ -33,4 +33,25 @@ router.post('/', authMiddleware, async (req, res) => {
 });
   }
 });
+
+router.delete("/:trackId", authMiddleware, async (req,res) => {
+    try {
+ const bookmark =  await Bookmark.findOneAndDelete({
+    trackId: Number(req.params.trackId)
+  });
+
+
+    if (!bookmark) {
+      return res.status(404).json({
+        message: 'Bookmark not found'
+      });
+    }
+    res.status(200).json({ message: "Bookmark deleted" });
+
+    } catch (err) {
+ res.status(500).json({
+      message: err.message
+    });
+    }
+} )
 module.exports = router;
