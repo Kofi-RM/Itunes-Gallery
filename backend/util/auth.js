@@ -25,7 +25,7 @@ module.exports = {
     try {
       const { data } = jwt.verify(token, secret, { maxAge: expiration });
       const user = await User.findById(data._id).select(
-  "_id username profileImageUrl"
+  "_id username profileImageUrl email"
 ); // get profileImageUrl - data - from signed token doesnt have it
 
 req.user = user;

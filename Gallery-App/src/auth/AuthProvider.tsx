@@ -2,13 +2,10 @@
 import { useState,useEffect, useCallback } from "react";
 import isTokenExpired from "./tokenCheck";
 import { AuthContext } from "./AuthContext";
+
 import type { ReactNode } from "react";
 import api from "../api/api";
-type User = {
-  _id: string;
-  username: string;
-  profileImageUrl: string;
-};
+import type { User } from "../type/User";
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [token, setToken] = useState<string | null>(
@@ -18,7 +15,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
 
   const loggedIn = !!token && !isTokenExpired(token);
-  console.log(loggedIn + " logged in")
+  console.log(loggedIn + "=  logged in")
 const [user, setUser] = useState<User | null>(null)
   const login = (newToken: string) => {
     setToken(newToken);
@@ -28,6 +25,7 @@ const [user, setUser] = useState<User | null>(null)
 
 const logout = useCallback(() => {
   setToken(null);
+ setUser(null)
  
   localStorage.removeItem("token");
 }, []);

@@ -106,244 +106,195 @@ useEffect(() => {
  window.location.href = "/dashboard";
   }
 },[validReg])
-  return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-6">
-   <div className=" inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-0 h-96 w-96 bg-indigo-600/20 blur-3xl rounded-full" />
-        <div className="absolute bottom-0 right-0 h-96 w-96 bg-cyan-500/20 blur-3xl rounded-full" />
-      </div>
+ return (
+  <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-6">
+    
+    {/* subtle glow background */}
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      <div className="absolute top-0 left-0 h-96 w-96 bg-green-500/10 blur-3xl rounded-full" />
+      <div className="absolute bottom-0 right-0 h-96 w-96 bg-green-400/10 blur-3xl rounded-full" />
+    </div>
 
-      <div className="relative w-full max-w-md">
-        <div className="bg-slate-900/80 backdrop-blur-lg border border-slate-800 rounded-3xl shadow-2xl p-8">
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-indigo-600 mb-4">
-             <img className="rounded" src="itunes.jpg"/>
-            </div>
-
-            <h1 className="text-4xl font-extrabold tracking-tight">
-              <span className="text-white">Gallery Live</span>
-             
-            </h1>
-
-            <p className="text-slate-400 mt-2">
-              Create your account
-            </p>
+    <div className="relative w-full max-w-md">
+      
+      <div className="bg-[#121212] border border-[#1f1f1f] rounded-2xl shadow-2xl p-8">
+        
+        {/* header */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center h-16 w-16 rounded-xl bg-green-500 mb-4">
+            <img className="rounded" src="itunes.jpg" />
           </div>
 
-          <form
-            onSubmit={handleSubmit}
-            className="space-y-5"
-          >
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                Username
-              </label>
+          <h1 className="text-3xl font-bold text-white">
+            Gallery Live
+          </h1>
 
-              <input
-                type="text"
-                placeholder="johndoe"
-                value={username}
-                onChange={(e) =>
-                  setUsername(e.target.value)
-                }
-                required
-                className="
-                  w-full
-                  px-4
-                  py-3
-                  bg-slate-800
-                  border
-                  border-slate-700
-                  rounded-xl
-                  text-slate-100
-                  placeholder-slate-500
-                  focus:outline-none
-                  focus:ring-2
-                  focus:ring-indigo-500
-                  focus:border-indigo-500
-                  transition
-                "
-              />
-            </div>
+          <p className="text-zinc-400 mt-2 text-sm">
+            Create your account
+          </p>
+        </div>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                Email
-              </label>
+        <form onSubmit={handleSubmit} className="space-y-5">
 
-              <input
-                type="email"
-                placeholder="name@example.com"
-                value={email}
-                onChange={(e) =>
-                  setEmail(e.target.value)
-                }
-                required
-                className="
-                  w-full
-                  px-4
-                  py-3
-                  bg-slate-800
-                  border
-                  border-slate-700
-                  rounded-xl
-                  text-slate-100
-                  placeholder-slate-500
-                  focus:outline-none
-                  focus:ring-2
-                  focus:ring-indigo-500
-                  focus:border-indigo-500
-                  transition
-                "
-              />
-            </div>
+          {/* username */}
+          <div>
+            <label className="block text-sm text-zinc-400 mb-2">
+              Username
+            </label>
 
-           <div className="relative">
-  <label className="block text-sm font-medium text-slate-300 mb-2">
-    Password
-  </label>
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="
+                w-full px-4 py-3
+                bg-[#181818]
+                border border-[#2a2a2a]
+                rounded-lg
+                text-white
+                placeholder-zinc-500
+                focus:outline-none
+                focus:ring-2
+                focus:ring-green-500
+              "
+            />
+          </div>
 
-  <input
-    type={showPassword ? "text" : "password"}
-    placeholder="••••••••"
-    value={password}
-    onChange={(e) =>{ const newPassword = e.target.value;
+          {/* email */}
+          <div>
+            <label className="block text-sm text-zinc-400 mb-2">
+              Email
+            </label>
 
-  setPassword(newPassword);
-  setPasswordError(validatePassword(newPassword));
-    }
-    }
-    required
-    className="
-      w-full
-      px-4
-      py-3
-      pr-12
-      bg-slate-800
-      border
-      border-slate-700
-      rounded-xl
-      text-slate-100
-      placeholder-slate-500
-      focus:outline-none
-      focus:ring-2
-      focus:ring-indigo-500
-      focus:border-indigo-500
-      transition
-    "
-  />
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="
+                w-full px-4 py-3
+                bg-[#181818]
+                border border-[#2a2a2a]
+                rounded-lg
+                text-white
+                placeholder-zinc-500
+                focus:outline-none
+                focus:ring-2
+                focus:ring-green-500
+              "
+            />
+          </div>
 
-  <button
-    type="button"
-    onClick={() => setShowPassword((prev) => !prev)}
-    className="
-      absolute
-      right-3
-      top-[42px]
-      text-slate-400
-      hover:text-slate-200
-      text-sm
-    "
-  >
-    {showPassword ? "Hide" : "Show"}
-  </button>
-</div>
-{passwordError && (
-  <p className="mt-1 text-sm text-red-400">
-    {passwordError}
-  </p>
-)}
-<div className="relative">
- <label className="block text-sm font-medium text-slate-300 mb-2">
-   Confirm Password
-  </label>
+          {/* password */}
+          <div className="relative">
+            <label className="block text-sm text-zinc-400 mb-2">
+              Password
+            </label>
 
-  <input
-    type={showConfirm ? "text" : "password"}
-    placeholder="••••••••"
-    value={confirmPassword}
-    onChange={(e) => setConfirmPassword(e.target.value)}
-    required
-    className="
-      w-full
-      px-4
-      py-3
-      pr-12
-      bg-slate-800
-      border
-      border-slate-700
-      rounded-xl
-      text-slate-100
-      placeholder-slate-500
-      focus:outline-none
-      focus:ring-2
-      focus:ring-indigo-500
-      focus:border-indigo-500
-      transition
-    "
-  />
-
-  <button
-    type="button"
-    onClick={() => setShowConfirm((prev) => !prev)}
-    className="
-      absolute
-      right-3
-      top-[42px]
-      text-slate-400
-      hover:text-slate-200
-      text-sm
-    "
-  >
-    {showConfirm ? "Hide" : "Show"}
-  </button>
-</div>
-            {error && (
-              <div className="bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-xl p-3 text-sm">
-                {error}
-              </div>
-            )}
+            <input
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(e) => {
+                const val = e.target.value;
+                setPassword(val);
+                setPasswordError(validatePassword(val));
+              }}
+              className="
+                w-full px-4 py-3 pr-12
+                bg-[#181818]
+                border border-[#2a2a2a]
+                rounded-lg
+                text-white
+                focus:outline-none
+                focus:ring-2
+                focus:ring-green-500
+              "
+            />
 
             <button
-              type="submit"
-              disabled={loading}
-              className="
-                w-full
-                bg-indigo-600
-                hover:bg-indigo-500
-                disabled:opacity-50
-                text-white
-                font-semibold
-                py-3
-                rounded-xl
-                transition-all
-                duration-200
-                hover:scale-[1.02]
-              "
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-[38px] text-zinc-400 text-sm"
             >
-              {loading
-                ? "Creating Account..."
-                : "Create Account"}
+              {showPassword ? "Hide" : "Show"}
             </button>
-          </form>
+          </div>
 
-          <div className="mt-12">
-  <p className="text-center text-slate-400 text-sm">
-    Already have an account?{" "}
-    <Link
-      to="/login"
-      className="text-cyan-400 hover:text-cyan-300 font-medium"
-    >
-      Sign In
-    </Link>
-  </p>
-       </div>
+          {passwordError && (
+            <p className="text-sm text-red-400">
+              {passwordError}
+            </p>
+          )}
 
-    
+          {/* confirm password */}
+          <div className="relative">
+            <label className="block text-sm text-zinc-400 mb-2">
+              Confirm Password
+            </label>
+
+            <input
+              type={showConfirm ? "text" : "password"}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="
+                w-full px-4 py-3 pr-12
+                bg-[#181818]
+                border border-[#2a2a2a]
+                rounded-lg
+                text-white
+                focus:outline-none
+                focus:ring-2
+                focus:ring-green-500
+              "
+            />
+
+            <button
+              type="button"
+              onClick={() => setShowConfirm(!showConfirm)}
+              className="absolute right-3 top-[38px] text-zinc-400 text-sm"
+            >
+              {showConfirm ? "Hide" : "Show"}
+            </button>
+          </div>
+
+          {/* error */}
+          {error && (
+            <div className="bg-red-500/10 border border-red-500/20 text-red-400 rounded-lg p-3 text-sm">
+              {error}
+            </div>
+          )}
+
+          {/* submit */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="
+              w-full
+              bg-green-500 hover:bg-green-400
+              text-black font-semibold
+              py-3 rounded-full
+              transition
+              hover:scale-[1.02]
+            "
+          >
+            {loading ? "Creating..." : "Sign up"}
+          </button>
+        </form>
+
+        {/* login link */}
+        <div className="mt-10 text-center">
+          <p className="text-zinc-400 text-sm">
+            Already have an account?{" "}
+            <Link
+              to="/login"
+              className="text-green-400 hover:text-green-300 font-medium"
+            >
+              Log in
+            </Link>
+          </p>
         </div>
       </div>
     </div>
-  );
-};
-
-export default Register;
+  </div>
+);
+}
+export default Register

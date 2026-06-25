@@ -1,5 +1,5 @@
 import { useState} from "react";
-import MediaPlayer from "../components/MediaPlayer";
+import MediaPlayer from "../components/MediaPlayer/MediaPlayer";
 import { useMediaPlayer } from "../hooks/useMediaPlayer";
 import helperFunctions from "../util/helperFunctions";
 import ResultsGrid from "../components/ResultsGrid";
@@ -44,7 +44,10 @@ function GalleryDisplay() {
         <div className="flex justify-between">
           <h1 className="text-5xl font-bold mb-8">Gallery Live</h1>
          {loggedIn ? (
-  <button onClick={logout}>
+  <button onClick={() => {
+    logout()
+    
+  }}>
     Logout
   </button>
 ) : (

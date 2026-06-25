@@ -8,11 +8,13 @@ import { BookmarksProvider } from './bookmark/BookmarkProvider'
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
-    <BookmarksProvider>
+    
     <AuthProvider>
+<BookmarksProvider>
 <App/>
-    </AuthProvider>
     </BookmarksProvider>
+    </AuthProvider>
+    
     </BrowserRouter>
   
   </StrictMode>,

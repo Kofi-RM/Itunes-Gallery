@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import type { Result } from "../type/Result";
-import helperFunctions from "../util/helperFunctions";
+import type { Result } from "../../type/Result";
+import helperFunctions from "../../util/helperFunctions";
 import VolumeIcon from "./VolumeIcon";
 import PlayerControls from "./PlayerControls";
 import Slider from "./Slider";

@@ -1,7 +1,7 @@
-import MutedIcon from "../assets/icons/MutedIcon";
-import LowIcon from "../assets/icons/LowIcon";
-import MediumIcon from "../assets/icons/MediumIcon";
-import MaxIcon from "../assets/icons/MaxIcon";
+import MutedIcon from "../../assets/icons/MutedIcon";
+import LowIcon from "../../assets/icons/LowIcon";
+import MediumIcon from "../../assets/icons/MediumIcon";
+import MaxIcon from "../../assets/icons/MaxIcon";
 import { useEffect } from "react";
 
 import VolumeButton from "./VolumeButton";

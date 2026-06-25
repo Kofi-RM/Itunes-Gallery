@@ -2,12 +2,7 @@
 
 import { createContext } from "react";
 
-type User = {
-  _id: string;
-  username: string;
-  profileImageUrl: string;
-};
-
+import type { User } from "../type/User";
 
 type AuthContextType = {
   token: string | null;

@@ -14,13 +14,14 @@ collectionArtistName: {type: String},
 trackName: {type: String},
 previewUrl: {type: String},
 trackId: {type:Number},
+artworkUrl100: {type:String},
 user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true
-  }
-
-})
+  },
+},
+  {timestamps:true})
 
 const Bookmark = mongoose.models.Item || mongoose.model("Bookmark", bookmarkSchema);
 

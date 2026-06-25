@@ -1,6 +1,6 @@
 
-import type { Result } from "../type/Result";
-import helperFunctions from "../util/helperFunctions";
+import type { Result } from "../../type/Result";
+import helperFunctions from "../../util/helperFunctions";
 
 import Slider from "./Slider";
 

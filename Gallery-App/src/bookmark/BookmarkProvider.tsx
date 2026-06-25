@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react";
 import api from "../api/api";
 import type { Result } from "../type/Result";
-import { BookmarksContext, type Bookmark } from "./BookmarkContext";
-
+import { BookmarksContext } from "./BookmarkContext";
+import { useAuth } from "../auth/useAuth";
 export const BookmarksProvider = ({
   children,
 }: {
   children: React.ReactNode;
 }) => {
-  const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
+
+    const {loggedIn} = useAuth()
+  const [bookmarks, setBookmarks] = useState<Result[]>([]);
 
  
     const isBookmarked = (trackId: number) => {
@@ -40,7 +42,7 @@ export const BookmarksProvider = ({
     console.log("post");
   }
 
-  const { data } = await api.get<Bookmark[]>("/api/bookmarks");
+  const { data } = await api.get<Result[]>("/api/bookmarks");
   console.log("new data", data);
 
   setBookmarks(data);
@@ -50,12 +52,15 @@ export const BookmarksProvider = ({
 
 useEffect(() => {
   const loadBookmarks = async () => {
-    const { data } = await api.get<Bookmark[]>("/api/bookmarks");
+    const { data } = await api.get<Result[]>("/api/bookmarks");
     setBookmarks(data);
   };
-
+if (loggedIn){
   loadBookmarks();
-}, []);
+}
+}, [loggedIn]);
+
+
   return (
     <BookmarksContext.Provider
       value={{

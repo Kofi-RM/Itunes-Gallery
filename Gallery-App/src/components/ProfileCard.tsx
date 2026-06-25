@@ -1,11 +1,11 @@
 import { useAuth } from "../auth/useAuth"
-
+import { useNavigate } from "react-router-dom"
 
 
 const ProfileCard = () => {
 
     const {user} = useAuth()
-
+    const navigate = useNavigate()
    const src =  user && user.profileImageUrl ? user.profileImageUrl : "profileIcon.jpg"
    
 //    console.log(user)
@@ -13,7 +13,7 @@ const ProfileCard = () => {
 //    console.log(src)
 
     return (
- <img className="rounded w-14 h-14"src={src}/>
+ <img onClick = {() => navigate("/profile")} className="rounded w-14 h-14"src={src}/>
     )
 }
 

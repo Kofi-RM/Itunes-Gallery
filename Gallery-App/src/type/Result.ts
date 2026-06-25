@@ -5,4 +5,7 @@ export type Result = {
   artworkUrl100: string;
   previewUrl: string;
   kind: string;
+  user?: string;
+    createdAt?: string;
+  updatedAt?: string;
 }

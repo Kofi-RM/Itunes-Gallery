@@ -13,7 +13,7 @@ router.get('/', authMiddleware, async (req, res) => {
             console.log(bookmarks)
             res.json(bookmarks)
     } catch (err) {
-res.status.apply(400).json({
+res.status(400).json({
     error:err.message})
     }
     })
