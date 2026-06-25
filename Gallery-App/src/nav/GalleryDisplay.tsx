@@ -1,13 +1,14 @@
 import { useState} from "react";
 import MediaPlayer from "../components/MediaPlayer/MediaPlayer";
 import { useMediaPlayer } from "../hooks/useMediaPlayer";
-import helperFunctions from "../util/helperFunctions";
+
 import ResultsGrid from "../components/ResultsGrid";
 import type { Result } from "../type/Result";
 import SearchBar from "../components/SearchBar";
 import ProfileCard from "../components/ProfileCard";
 import { useAuth } from "../auth/useAuth";
 import { useNavigate } from "react-router-dom";
+
 
 function GalleryDisplay() {
   const [results, setResults] = useState<Result[]>([]);
@@ -16,7 +17,7 @@ function GalleryDisplay() {
   const {loggedIn, logout} = useAuth()
   const [isFullscreen, setIsFullscreen] = useState(false);
 
-  const {  onSubmit} = helperFunctions;
+
 
   const player = useMediaPlayer();
 
@@ -43,23 +44,52 @@ function GalleryDisplay() {
       <div className="max-w-7xl mx-auto p-6">
         <div className="flex justify-between">
           <h1 className="text-5xl font-bold mb-8">Gallery Live</h1>
-         {loggedIn ? (
-  <button onClick={() => {
-    logout()
-    
-  }}>
-    Logout
-  </button>
-) : (
-  <button onClick={() => navigate("/login")}>
-    Login
-  </button>
-)}
+        
+       <div className="flex">
+  {loggedIn ? (
+    <button
+      onClick={() => logout()}
+      className="
+  self-center
+  px-4 py-1.5
+  h-fit
+  rounded-full
+  bg-red-500 hover:bg-red-400
+  text-black
+  text-sm
+  font-medium
+  transition
+  mr-10
+"
+    >
+      Logout
+    </button>
+  ) : (
+    <button
+      onClick={() => navigate("/login")}
+className="
+  self-center
+  px-4 py-1.5
+  h-fit
+  rounded-full
+  bg-green-500 hover:bg-green-400
+  text-black
+  text-sm
+  font-medium
+  transition
+  mr-10
+"
+    >
+      Login
+    </button>
+  )}
+
          <ProfileCard/>
+         </div>
         </div>
         
 
-        <SearchBar onSubmit={(e) => onSubmit({ e, setResults })} audioRef={player.audioRef} videoRef={player.videoRef} />
+        <SearchBar setResults={setResults}  />
         {/* GRID */}
         <ResultsGrid results={results} onSelect={OnSelect} />
       </div>

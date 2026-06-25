@@ -1,47 +1,11 @@
 import type { Result } from "../type/Result";
-import api from "../api/api";
+
 
 const isVideo = (activeMedia: Result | null) => {
   if (!activeMedia) return false;
   return activeMedia?.kind === "music-video" || activeMedia?.kind === "tv-episode";
 };
 
-type onSubmitType =  {
-    e: React.FormEvent<HTMLFormElement>;
-    setResults: React.Dispatch<React.SetStateAction<Result[]>>;
-}
-
-  const onSubmit = async ({ e, setResults }: onSubmitType) => {
-    e.preventDefault();
-
-   
-    const searchInput = document.getElementById(
-      "searchQuery"
-    ) as HTMLInputElement;
-
-    const mediaTypeSelect = document.getElementById(
-      "mediaType"
-    ) as HTMLSelectElement;
-
-    const queryValue = searchInput.value.trim()
-    const mediaType = mediaTypeSelect.value;
-  try {
-    const res = await api.get(
-      `/api/search`, {
-        params: {
-          media: mediaType,
-          term: queryValue,
-          limit: 36
-        }
-      }
-    );
-
-console.log(res.data.results);
-    setResults(res.data.results.slice(0, 50));
-  } catch (error) {
-    alert("Error fetching search results:" + error);
-  }
-  }
 
   const formatTime = (time: number) => {
   if (!time || isNaN(time)) return "0:00";
@@ -56,7 +20,7 @@ console.log(res.data.results);
   // --
 export default {
   isVideo,
-  onSubmit,
+
   formatTime,
  
 };
