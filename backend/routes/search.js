@@ -2,7 +2,7 @@
 const router = require("express").Router()
 const axios = require("axios")
 
-
+// return search results
 router.get("/", async (req, res) => {
   const { term, media } = req.query;
 
@@ -12,7 +12,7 @@ router.get("/", async (req, res) => {
       params: {
         term,
         media,
-        limit: 36,
+       
       },
     }
   );

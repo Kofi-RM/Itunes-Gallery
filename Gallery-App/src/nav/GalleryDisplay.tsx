@@ -17,23 +17,10 @@ function GalleryDisplay() {
   const {loggedIn, logout} = useAuth()
   const [isFullscreen, setIsFullscreen] = useState(false);
 
-
-
   const player = useMediaPlayer();
 
-  // -----------------------------
-  // VOLUME PERSISTENCE
-  // -----------------------------
-  // useEffect(() => {
-
-  //   localStorage.setItem("galleryVolume", String(volume));
-  
-  // }, [volume, player.activeMedia]);
-
   const OnSelect = (result: Result) => {
-    console.log(result);
     player.setActiveMedia(result);
-
   };
  
   // -----------------------------
@@ -44,7 +31,8 @@ function GalleryDisplay() {
       <div className="max-w-7xl mx-auto p-6">
         <div className="flex justify-between">
           <h1 className="text-5xl font-bold mb-8">Gallery Live</h1>
-        
+       
+        {/* Show login/logout conditionally */}
        <div className="flex">
   {loggedIn ? (
     <button
@@ -83,12 +71,12 @@ className="
       Login
     </button>
   )}
-
+          {/* Profile picture */}
          <ProfileCard/>
          </div>
         </div>
         
-
+            {/* Search Bar */}
         <SearchBar setResults={setResults}  />
         {/* GRID */}
         <ResultsGrid results={results} onSelect={OnSelect} />
@@ -96,7 +84,7 @@ className="
 
       {player.activeMedia && (
         <>
-          {/* Fullscreen backdrop */}
+          {/* Fullscreen exit button */}
           {isFullscreen && (
             <button
               onClick={() => setIsFullscreen(false)}

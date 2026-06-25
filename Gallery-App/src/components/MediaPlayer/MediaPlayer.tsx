@@ -42,6 +42,7 @@ export default function MediaPlayer({
 }: Props) {
   const miniVideoSlot = useRef<HTMLDivElement>(null);
   const fullVideoSlot = useRef<HTMLDivElement>(null);
+  // used to refer to divs with different dimensions and display video
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [controlsVisible, setControlsVisible] = useState(true);
 
@@ -58,8 +59,8 @@ export default function MediaPlayer({
       fullVideoSlot.current?.appendChild(video);
     } else {
       miniVideoSlot.current?.appendChild(video);
-    }
-  }, [isFullscreen]);
+    } // if video place in current format
+  }, [isFullscreen, videoRef]);
 
 useEffect(() => {
   if (!isFullscreen) return;
@@ -82,7 +83,7 @@ useEffect(() => {
   return (
     <div className="w-full h-full">
       <audio ref={audioRef} className="hidden" />
-
+{/* One video at all times */}
       <video
         ref={videoRef}
         style={{ display: isVideo ? undefined : "none" }}
@@ -112,6 +113,7 @@ useEffect(() => {
           </div>
 
           <div className="flex items-center gap-3 flex-shrink-0">
+           {/* If on iPhone only show mute button instead of volume slider */}
             {!isIOS && <Slider variant="volume" value={volume} onChange={setVolume} />}
             <VolumeIcon toggleMute={toggleMute} volume={volume} />
             <button onClick={togglePlay}>{isPlaying ? "⏸" : "▶"}</button>
@@ -119,7 +121,7 @@ useEffect(() => {
             <button onClick={() => setActiveMedia(null)}>✕</button>
           </div>
         </div>
-
+{/* Player Progress Bar */}
         <PlayerControls
           volume={volume}
           setVolume={setVolume}

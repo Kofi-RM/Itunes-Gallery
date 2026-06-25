@@ -32,7 +32,7 @@ const {token, login} = useAuth()
         }
       );
 
-      // save token
+      //make user and save token
       login(data.token)
       // redirect
       navigate("/");
@@ -52,6 +52,8 @@ const {token, login} = useAuth()
     
   }
 }, [token, navigate, login]);
+// take to dashboard on successful login
+
   return (
   <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-6">
 
@@ -127,7 +129,7 @@ const {token, login} = useAuth()
                 focus:ring-green-500
               "
             />
-
+            {/* Show/Hide password */}
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}

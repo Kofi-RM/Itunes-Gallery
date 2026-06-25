@@ -7,8 +7,7 @@ import useBookmarks from "../bookmark/useBookmarks";
 type CardProps = {
   result: Result;
   onClick: () => void;
-  bookmarked: boolean;
-  onBookmarkToggle: (result: Result) => void;
+
 };
 
 
@@ -24,7 +23,7 @@ const {loggedIn} = useAuth()
                   rounded-lg
                   p-3
                   hover:bg-zinc-800
-                  transition-colors
+                  transition-colors            
                 "
               >
                 <div className="relative group">
@@ -71,7 +70,8 @@ const {loggedIn} = useAuth()
         flex
         items-center
         justify-center
-        bg-black/40
+        
+z-10
         opacity-0
         group-hover:opacity-100
         transition

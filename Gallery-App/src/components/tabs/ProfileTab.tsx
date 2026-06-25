@@ -9,7 +9,7 @@ const ProfileTab = ({ user }: { user: User | null}) => {
     if(!user) return
     const formData = new FormData();
     formData.append("image", file);
-    const res = await api.post(`api/upload/upload-profile/${user._id}`, formData);
+    const res = await api.post(`api/users/me/avatar`, formData);
     console.log("Updated user:", res.data);
   };
 

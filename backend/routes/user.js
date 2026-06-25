@@ -20,18 +20,20 @@ router.get("/", async (req,res) => {
   }
 })
 
+// current user details
 router.get("/me", authMiddleware, (req, res) => {
   res.json(req.user);
 });
 
-
+// get user by id
 router.get("/:id", async (req, res) => {
   const user = await User.findById(req.params.id);
   res.json(user);
 });
 
+// upload image
 router.post(
-  "/users/:id/avatar",
+  "/users/me/avatar", authMiddleware,
   upload.single("image"),
   async (req, res) => {
     const imageUrl = req.file.path; // Cloudinary URL
@@ -51,6 +53,7 @@ router.post(
 router.post('/register', async (req, res) => {
   const { email } = req.body;
 
+  // check if valid email
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (
     !emailRegex.test(email) 
@@ -59,7 +62,6 @@ router.post('/register', async (req, res) => {
     message: "Please use a valid email address"
   });
 }
-
 
   try {
     const user = await User.create(req.body);

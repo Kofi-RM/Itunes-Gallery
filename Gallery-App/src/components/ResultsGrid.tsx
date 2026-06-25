@@ -1,6 +1,5 @@
 import type { Result } from "../type/Result";
 import Card from "./Card";
-import useBookmarks from "../bookmark/useBookmarks";
 
 type ResultsGridProps = {
   results: Result[];
@@ -8,9 +7,7 @@ type ResultsGridProps = {
 };
 
 const ResultsGrid = ({ results, onSelect }: ResultsGridProps) => {
-const{ bookmarks, toggleBookmark }= useBookmarks()
-
-  
+ 
     return (
         <>
  {results.length > 0 ? (
@@ -22,11 +19,7 @@ const{ bookmarks, toggleBookmark }= useBookmarks()
                 onClick={() => {
                  onSelect(result);
                 }}
-                bookmarked = {bookmarks.some(
-  (bookmark) => bookmark.trackId === result.trackId
-)}
-                onBookmarkToggle={toggleBookmark}
-              />
+        />
             ))}
           </div>
         ) : (

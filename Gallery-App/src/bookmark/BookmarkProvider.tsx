@@ -35,19 +35,14 @@ export const BookmarksProvider = ({
   } catch (err) {
     console.error("delete failed", err);
   }
-
+  // delete bookmark if exists
   return;
   } else {
     await api.post("/api/bookmarks", result);
-    console.log("post");
+    // make bookmark if doesnt exist
   }
-
   const { data } = await api.get<Result[]>("/api/bookmarks");
-  console.log("new data", data);
-
   setBookmarks(data);
-
-  console.log("set data");
 };
 
 useEffect(() => {
@@ -59,6 +54,7 @@ if (loggedIn){
   loadBookmarks();
 }
 }, [loggedIn]);
+// load bookmarks when logged in
 
 
   return (
