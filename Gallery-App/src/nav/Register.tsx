@@ -53,7 +53,7 @@ if (!emailRegex.test(email)) throw Error;
         })
 
      console.log(data)
-      localStorage.setItem("token", data.token);
+      localStorage.setItem("gallery_token", data.token);
       setValidReg(true)
         
 
@@ -126,7 +126,7 @@ useEffect(() => {
           </div>
 
           <h1 className="text-3xl font-bold text-white">
-            Gallery Live
+           iTunes Gallery 
           </h1>
 
           <p className="text-zinc-400 mt-2 text-sm">

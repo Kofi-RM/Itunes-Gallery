@@ -7,7 +7,7 @@ const cors = require("cors")
 const search = require("./routes/search")
 const user = require("./routes/user")
 const bookmark = require("./routes/bookmarks")
-const upload = require("./routes/upload")
+const upload = require("./util/upload")
 
 require('dotenv').config();
  

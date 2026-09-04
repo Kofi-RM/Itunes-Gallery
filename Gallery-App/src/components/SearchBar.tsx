@@ -10,7 +10,25 @@ const SearchBar = ({ setResults }: SearchBarProps) => {
   const [search, setSearch] = useState("");
   const [mediaType, setMediaType] = useState("music");
 const {debounceValue} = useDebounce(search)
- const searchMedia = async () => {
+
+ const setMedia = async () => {
+  try {
+    const res = await api.get("/api/search", {
+      params: {
+        media: mediaType,
+        term: "Pop",
+        limit: 36,
+      },
+    });
+
+    setResults(res.data.results);
+  } catch (error) {
+    alert("Error fetching search results: " + error);
+  }
+};
+
+
+const searchMedia = async () => {
   try {
     const res = await api.get("/api/search", {
       params: {
@@ -34,6 +52,9 @@ useEffect(() => {
   searchMedia();
 }, [debounceValue, mediaType]);
 
+useEffect(()=> {
+  setMedia()
+},)
   return (
     <div
      
@@ -43,7 +64,7 @@ useEffect(() => {
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-3"
-        placeholder="Search..."
+        placeholder="Start typing to search"
       />
 
       <select

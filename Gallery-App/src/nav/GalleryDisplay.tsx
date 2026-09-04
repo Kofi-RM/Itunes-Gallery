@@ -30,7 +30,7 @@ function GalleryDisplay() {
     <div className="min-h-screen bg-black text-white pb-32">
       <div className="max-w-7xl mx-auto p-6">
         <div className="flex justify-between">
-          <h1 className="text-5xl font-bold mb-8">Gallery Live</h1>
+          <h1 className="text-5xl font-bold mb-8">iTunes Gallery</h1>
        
         {/* Show login/logout conditionally */}
        <div className="flex">

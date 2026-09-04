@@ -9,25 +9,26 @@ import type { User } from "../type/User";
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [token, setToken] = useState<string | null>(
-    localStorage.getItem("token")
-  );
-
-
+    localStorage.getItem("gallery_token")
+  ); // get token from local storage
 
   const loggedIn = !!token && !isTokenExpired(token);
+  // hard fast tell whether logged in or not
   console.log(loggedIn + "=  logged in")
 const [user, setUser] = useState<User | null>(null)
-  const login = (newToken: string) => {
-    setToken(newToken);
-   
-    localStorage.setItem("token", newToken);
+  
+
+// login func
+const login = (newToken: string) => {
+    setToken(newToken);   
+    localStorage.setItem("gallery_token", newToken);
   };
 
+  // logout func
 const logout = useCallback(() => {
   setToken(null);
  setUser(null)
- 
-  localStorage.removeItem("token");
+  localStorage.removeItem("gallery_token");
 }, []);
 
   useEffect(() => {
@@ -55,16 +56,16 @@ useEffect(() => {
         if(loggedIn){
          
         const { data } = await api.get("api/users/me");
-        console.log(data)
         setUser(data);
         }
       } catch {
         setUser(null);
       }
+      // if logged in set user data
     };
 
     loadUser();
-  }, [loggedIn]);
+  }, [loggedIn]); // run when log in status changes
   return (
     <AuthContext.Provider value={{ token, login, logout, loggedIn, user, setUser}}>
       {children}

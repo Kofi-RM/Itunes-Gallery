@@ -6,6 +6,7 @@ const Bookmark = require("../models/Bookmark");
 
 const {authMiddleware} = require("../util/auth")
 
+// get bookmarks from that user
 router.get('/', authMiddleware, async (req, res) => {
     try {
         const bookmarks = await Bookmark.find({
@@ -18,12 +19,13 @@ res.status(400).json({
     }
     })
 
-    // make project
+    // make bookmark
 router.post('/', authMiddleware, async (req, res) => {
   try {
     const bookmark = await Bookmark.create({
         ...req.body,
         user: req.user._id
+        // set user as logged in user
   });
    
     res.status(201).json({ bookmark });
@@ -34,13 +36,13 @@ router.post('/', authMiddleware, async (req, res) => {
   }
 });
 
+// delete user by trackId
 router.delete("/:trackId", authMiddleware, async (req,res) => {
     try {
  const bookmark =  await Bookmark.findOneAndDelete({
     trackId: Number(req.params.trackId)
   });
-
-
+  
     if (!bookmark) {
       return res.status(404).json({
         message: 'Bookmark not found'
