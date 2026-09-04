@@ -24,7 +24,7 @@ passport.use(
         // Create a new user record for first-time GitHub logins.
         const newUser = new User({
           githubId: profile.id,
-          username: profile.username,
+          username: profile.username?.length >= 4 ? profile.username : `github-${profile.username || profile.id}`,
           email: profile.emails?.[0]?.value, // Some providers return an array of emails
         });
  

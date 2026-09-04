@@ -47,7 +47,6 @@ const {token, login} = useAuth()
 
  useEffect(() => {
   if (token && !isTokenExpired(token))  {
-    login(token)
     navigate("/");
     
   }

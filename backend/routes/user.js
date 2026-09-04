@@ -33,16 +33,17 @@ router.get("/:id", async (req, res) => {
 
 // upload image
 router.post(
-  "/users/me/avatar", authMiddleware,
+  "/me/avatar", authMiddleware,
   upload.single("image"),
   async (req, res) => {
+    if (!req.file) return res.status(400).json({ message: "Please select an image." });
     const imageUrl = req.file.path; // Cloudinary URL
 
     const user = await User.findByIdAndUpdate(
-      req.params.id,
+      req.user._id,
       { profileImageUrl: imageUrl },
       { new: true }
-    );
+    ).select("_id username email profileImageUrl");
 
     res.json(user);
   }
@@ -51,12 +52,12 @@ router.post(
 
 // POST /api/users/register - create a new account and return a JWT
 router.post('/register', async (req, res) => {
-  const { email } = req.body;
+  const { email, username, password } = req.body;
 
   // check if valid email
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (
-    !emailRegex.test(email) 
+    typeof email !== "string" || !emailRegex.test(email)
   ) {
   return res.status(400).json({
     message: "Please use a valid email address"
@@ -64,7 +65,12 @@ router.post('/register', async (req, res) => {
 }
 
   try {
-    const user = await User.create(req.body);
+    // Local registration must never accept provider identities from the client.
+    if (typeof username !== "string" || username.trim().length < 4 ||
+        typeof password !== "string" || password.length < 8) {
+      return res.status(400).json({ message: "Use a username of at least 4 characters and a password of at least 8 characters." });
+    }
+    const user = await User.create({ email, username: username.trim(), password });
     const token = signToken(user);
     res.status(201).json({ token, user });
   } catch (err) {
@@ -109,7 +115,7 @@ router.get(
 router.get(
   '/auth/github/callback',
   passport.authenticate('github', {
-    failureRedirect: '/login', // Where to redirect if user denies
+    failureRedirect: `${process.env.FRONTEND_DEPLOYMENT}/login`,
     session: false,
      // We are using tokens, not sessions
   }),
@@ -119,7 +125,7 @@ router.get(
     const token = signToken(req.user);
     // Redirect the user to the frontend with the token, or send it in the response
      res.redirect(
-      `${process.env.FRONTEND_DEPLOYMENT}/oauth-success?token=${token}`
+      `${process.env.FRONTEND_DEPLOYMENT}/oauth-success#token=${encodeURIComponent(token)}`
     );
   }
 );

@@ -1,8 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import type { Result } from "../../type/Result";
 import helperFunctions from "../../util/helperFunctions";
 import VolumeIcon from "./VolumeIcon";
-import PlayerControls from "./PlayerControls";
 import Slider from "./Slider";
 
 type Props = {
@@ -10,186 +9,93 @@ type Props = {
   isPlaying: boolean;
   togglePlay: () => void;
   volume: number;
-  setVolume: (v: number) => void;
-  seek: (t: number) => void;
+  setVolume: (value: number) => void;
+  seek: (time: number) => void;
   currentTime: number;
   duration: number;
   progress: number;
   audioRef: React.RefObject<HTMLAudioElement | null>;
   videoRef: React.RefObject<HTMLVideoElement | null>;
-  setActiveMedia: (m: Result | null) => void;
+  setActiveMedia: (media: Result | null) => void;
   isFullscreen: boolean;
-  setIsFullscreen: (f: boolean) => void;
+  setIsFullscreen: (expanded: boolean) => void;
   toggleMute: () => void;
 };
 
-export default function MediaPlayer({
-  activeMedia,
-  volume,
-  setVolume,
-  audioRef,
-  videoRef,
-  setActiveMedia,
-  isFullscreen,
-  setIsFullscreen,
-  isPlaying,
-  togglePlay,
-  seek,
-  duration,
-  currentTime,
-  progress,
-  toggleMute,
-}: Props) {
-  const miniVideoSlot = useRef<HTMLDivElement>(null);
-  const fullVideoSlot = useRef<HTMLDivElement>(null);
-  // used to refer to divs with different dimensions and display video
-  const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [controlsVisible, setControlsVisible] = useState(true);
-
-  const showControls = () => {
-    setControlsVisible(true);
-    if (hideTimer.current) clearTimeout(hideTimer.current);
-    hideTimer.current = setTimeout(() => setControlsVisible(false), 3000);
-  };
-
+export default function MediaPlayer({ activeMedia, volume, setVolume, audioRef, videoRef,
+  setActiveMedia, isFullscreen, setIsFullscreen, isPlaying, togglePlay, seek,
+  duration, currentTime, progress, toggleMute }: Props) {
+  const container = useRef<HTMLDivElement>(null);
+  const expandButton = useRef<HTMLButtonElement>(null);
   useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    if (isFullscreen) {
-      fullVideoSlot.current?.appendChild(video);
-    } else {
-      miniVideoSlot.current?.appendChild(video);
-    } // if video place in current format
-  }, [isFullscreen, videoRef]);
-
-useEffect(() => {
-  if (!isFullscreen) return;
-  document.body.style.overflow = "hidden";
-
-  hideTimer.current = setTimeout(() => setControlsVisible(false), 3000);
-
-  return () => {
-    document.body.style.overflow = "";
-    if (hideTimer.current) clearTimeout(hideTimer.current);
-  };
-}, [isFullscreen]);
+    if (!isFullscreen) return;
+    const previousOverflow = document.body.style.overflow;
+    const returnFocus = expandButton.current;
+    document.body.style.overflow = "hidden";
+    container.current?.focus();
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      if (returnFocus?.isConnected) returnFocus.focus();
+    };
+  }, [isFullscreen]);
 
   if (!activeMedia) return null;
-
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
   const isVideo = helperFunctions.isVideo(activeMedia);
-  const { formatTime } = helperFunctions;
-
-  return (
-    <div className="w-full h-full">
-      <audio ref={audioRef} className="hidden" />
-{/* One video at all times */}
-      <video
-        ref={videoRef}
-        style={{ display: isVideo ? undefined : "none" }}
-        className={isFullscreen
-          ? "w-full h-full object-contain"
-          : "w-14 h-14 object-cover rounded flex-shrink-0 cursor-pointer"}
-        onClick={() => !isFullscreen && setIsFullscreen(true)}
-      />
-
-      {/* MINI PLAYER */}
-      <div
-        style={{ display: isFullscreen ? "none" : undefined }}
-        className="flex flex-col gap-2 w-full p-3 bg-zinc-900 rounded-xl"
-      >
-        <div className="flex items-center gap-3">
-          <div ref={miniVideoSlot} className="flex-shrink-0" />
-          {!isVideo && (
-            <img
-              src={activeMedia.artworkUrl100.replace("100x100", "300x300")}
-              className="w-14 h-14 rounded flex-shrink-0"
-            />
-          )}
-
-          <div className="flex flex-col min-w-0 flex-1">
-            <p className="text-sm font-medium truncate text-white">{activeMedia.trackName}</p>
-            <p className="text-zinc-400 text-xs truncate">{activeMedia.artistName}</p>
-          </div>
-
-          <div className="flex items-center gap-3 flex-shrink-0">
-           {/* If on iPhone only show mute button instead of volume slider */}
-            {!isIOS && <Slider variant="volume" value={volume} onChange={setVolume} />}
-            <VolumeIcon toggleMute={toggleMute} volume={volume} />
-            <button onClick={togglePlay}>{isPlaying ? "⏸" : "▶"}</button>
-            {isVideo && <button onClick={() => setIsFullscreen(true)}>⛶</button>}
-            <button onClick={() => setActiveMedia(null)}>✕</button>
-          </div>
-        </div>
-{/* Player Progress Bar */}
-        <PlayerControls
-          volume={volume}
-          setVolume={setVolume}
-          seek={seek}
-          duration={duration}
-          currentTime={currentTime}
-          progress={progress}
-          activeMedia={activeMedia}
-        />
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+    || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const buttonClass = "min-w-11 min-h-11 flex items-center justify-center rounded-lg bg-zinc-800 text-white shrink-0";
+  return <div ref={container} tabIndex={-1}
+    role={isFullscreen ? "dialog" : "region"} aria-modal={isFullscreen || undefined}
+    aria-label={isFullscreen ? "Expanded media player" : "Media player"}
+    className={isFullscreen ? "safe-expanded min-h-full flex flex-col justify-center gap-4" : "max-w-6xl mx-auto p-2 sm:p-3"}
+    onKeyDown={(event) => {
+      if (!isFullscreen) return;
+      if (event.key === "Escape") { event.preventDefault(); setIsFullscreen(false); }
+      if (event.key === "Tab") {
+        const controls = Array.from(container.current?.querySelectorAll<HTMLElement>("button:not(:disabled), input:not(:disabled)") ?? [])
+          .filter((element) => element.getClientRects().length > 0);
+        const first = controls[0], last = controls.at(-1);
+        if (!first || !last) return;
+        if (event.shiftKey && (document.activeElement === first || document.activeElement === container.current)) {
+          event.preventDefault(); last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault(); first.focus();
+        }
+      }
+    }}>
+    <audio ref={audioRef} preload="metadata" />
+    <div className={isFullscreen ? "flex flex-col items-center gap-4 min-w-0" : "flex items-center gap-2 min-w-0"}>
+      {/* Keep the same video node in the same React-owned location when expanding. */}
+      <video ref={videoRef} playsInline preload="metadata" hidden={!isVideo}
+        aria-label={`Preview of ${activeMedia.trackName}`}
+        className={isFullscreen ? "w-full max-h-[45svh] object-contain" : "w-11 h-11 object-cover rounded shrink-0"} />
+      {!isVideo && <img src={activeMedia.artworkUrl100 || "/itunes.jpg"} alt=""
+        className={isFullscreen ? "w-32 h-32 sm:w-48 sm:h-48 rounded-xl object-cover" : "w-11 h-11 rounded shrink-0"} />}
+      <div className={isFullscreen ? "min-w-0 max-w-full text-center" : "min-w-0 flex-1 text-left"}>
+        <p className={`text-sm text-white font-medium ${isFullscreen ? "break-words" : "truncate"}`}>{activeMedia.trackName}</p>
+        <p className="text-xs text-zinc-400 truncate">{activeMedia.artistName}</p>
       </div>
-
-      {/* FULLSCREEN */}
-      <div
-        onMouseMove={showControls}
-        onTouchStart={showControls}
-        style={{
-          display: isFullscreen ? undefined : "none",
-          cursor: controlsVisible ? "default" : "none",
-        }}
-        className="fixed inset-0 bg-black flex flex-col items-center justify-center z-50"
-      >
-        <div ref={fullVideoSlot} className="w-full h-full" />
-
-        {!isVideo && (
-          <img
-            src={activeMedia.artworkUrl100.replace("100x100", "300x300")}
-            className="w-40 h-40 rounded-xl absolute"
-          />
-        )}
-
-        {/* controls overlay */}
-        <div
-          className="absolute bottom-0 left-0 right-0 p-6 flex flex-col gap-4 transition-opacity duration-300"
-          style={{
-            opacity: controlsVisible ? 1 : 0,
-            background: "linear-gradient(transparent, rgba(0,0,0,0.8))",
-          }}
-        >
-          <div className="text-center">
-            <p className="text-white font-medium">{activeMedia.trackName}</p>
-            <p className="text-zinc-400 text-sm">{activeMedia.artistName}</p>
-          </div>
-
-          <div className="flex items-center gap-2 w-full max-w-lg mx-auto">
-            <span className="text-xs text-zinc-500 tabular-nums">{formatTime(currentTime)}</span>
-            <Slider
-              className="flex-1"
-              duration={duration}
-              variant="media"
-              value={progress}
-              onChange={(v) => seek(v * duration)}
-              onCommit={(v) => seek(v * duration)}
-              formatTooltip={(v) => helperFunctions.formatTime(v * duration)}
-            />
-            <span className="text-xs text-zinc-500 tabular-nums">{formatTime(duration)}</span>
-          </div>
-
-          <div className="flex items-center justify-center gap-8">
-            <VolumeIcon toggleMute={toggleMute} volume={volume} />
-            {!isIOS && <Slider variant="volume" value={volume} onChange={setVolume} className="w-24" />}
-            <button className="text-white text-4xl" onClick={togglePlay}>
-              {isPlaying ? "⏸" : "▶"}
-            </button>
-            <button className="text-zinc-400 text-xl" onClick={() => setIsFullscreen(false)}>✕</button>
-            <button className="text-zinc-400" onClick={() => setActiveMedia(null)}>⏹</button>
-          </div>
+      <div className={isFullscreen ? "flex flex-wrap items-center justify-center gap-2" : "flex items-center gap-1 shrink-0"}>
+        <div className={isFullscreen ? "flex items-center gap-2" : "hidden md:flex items-center gap-2"}>
+          {!isIOS && <Slider variant="volume" value={volume} onChange={setVolume} />}
+          <VolumeIcon volume={volume} toggleMute={toggleMute} />
         </div>
+        <button className={buttonClass} aria-label={isPlaying ? "Pause preview" : "Play preview"}
+          onClick={togglePlay}><span aria-hidden="true">{isPlaying ? "⏸" : "▶"}</span></button>
+        <button ref={expandButton} className={buttonClass}
+          aria-label={isFullscreen ? "Collapse player" : "Expand player"} aria-expanded={isFullscreen}
+          onClick={() => setIsFullscreen(!isFullscreen)}><span aria-hidden="true">{isFullscreen ? "⌄" : "⛶"}</span></button>
+        <button className={buttonClass} aria-label="Close player"
+          onClick={() => setActiveMedia(null)}><span aria-hidden="true">✕</span></button>
       </div>
     </div>
-  );
+    <div className="flex items-center gap-2 w-full max-w-3xl mx-auto">
+      <span className="text-xs text-zinc-300 tabular-nums shrink-0">{helperFunctions.formatTime(currentTime)}</span>
+      <Slider className="flex-1" duration={duration} value={progress}
+        onChange={(value) => seek(value * duration)}
+        formatTooltip={(value) => helperFunctions.formatTime(value * duration)} />
+      <span className="text-xs text-zinc-300 tabular-nums shrink-0">{helperFunctions.formatTime(duration)}</span>
+    </div>
+    {isFullscreen && <p className="text-xs text-zinc-400 text-center">Preview only{isIOS ? " · Use your device buttons to adjust volume" : ""}</p>}
+  </div>;
 }

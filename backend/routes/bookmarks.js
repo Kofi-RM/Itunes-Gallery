@@ -40,7 +40,8 @@ router.post('/', authMiddleware, async (req, res) => {
 router.delete("/:trackId", authMiddleware, async (req,res) => {
     try {
  const bookmark =  await Bookmark.findOneAndDelete({
-    trackId: Number(req.params.trackId)
+    trackId: Number(req.params.trackId),
+    user: req.user._id
   });
   
     if (!bookmark) {

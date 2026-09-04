@@ -1,72 +1,71 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import type { ReactNode } from "react";
 import api from "../api/api";
 import type { Result } from "../type/Result";
 import { BookmarksContext } from "./BookmarkContext";
 import { useAuth } from "../auth/useAuth";
-export const BookmarksProvider = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
 
-    const {loggedIn} = useAuth()
+export const BookmarksProvider = ({ children }: { children: ReactNode }) => {
+  const { token, loggedIn } = useAuth();
+  const session = loggedIn ? token : null;
+  // Session changes synchronously discard the previous account's local state.
+  return <SessionBookmarks key={session ?? "guest"} token={session}>{children}</SessionBookmarks>;
+};
+
+function SessionBookmarks({ children, token }: { children: ReactNode; token: string | null }) {
   const [bookmarks, setBookmarks] = useState<Result[]>([]);
+  const [error, setError] = useState("");
+  const [loaded, setLoaded] = useState(!token);
+  const controllerRef = useRef<AbortController | null>(null);
+  const pending = useRef(new Set<number>());
 
- 
-    const isBookmarked = (trackId: number) => {
-    return bookmarks.some((b) => b.trackId === trackId);
-  };
+  useEffect(() => {
+    const controller = new AbortController();
+    controllerRef.current = controller;
+    if (token) {
+      api.get<Result[]>("/api/bookmarks", {
+        signal: controller.signal,
+        headers: { Authorization: `Bearer ${token}` },
+      }).then(({ data }) => {
+        if (!controller.signal.aborted) {
+          setBookmarks(data);
+          setLoaded(true);
+        }
+      }).catch(() => {
+        if (!controller.signal.aborted) setError("Could not load bookmarks. Refresh to try again.");
+      });
+    }
+    return () => controller.abort();
+  }, [token]);
 
   const toggleBookmark = async (result: Result) => {
-
-
-  const exists = bookmarks.some(
-    (b) => b.trackId === result.trackId
-  );
-  console.log(exists);
-  if (exists) {
-  try {
-    await api.delete(`/api/bookmarks/${result.trackId}`);
-    setBookmarks((prev) => {
-      const next = prev.filter((b) => b.trackId !== result.trackId);
-      console.log("after filter", next);
-      return next;
-    });
-  } catch (err) {
-    console.error("delete failed", err);
-  }
-  // delete bookmark if exists
-  return;
-  } else {
-    await api.post("/api/bookmarks", result);
-    // make bookmark if doesnt exist
-  }
-  const { data } = await api.get<Result[]>("/api/bookmarks");
-  setBookmarks(data);
-};
-
-useEffect(() => {
-  const loadBookmarks = async () => {
-    const { data } = await api.get<Result[]>("/api/bookmarks");
-    setBookmarks(data);
+    const controller = controllerRef.current;
+    if (!token || !controller || controller.signal.aborted || pending.current.has(result.trackId)) return;
+    if (!loaded) {
+      setError("Please wait for bookmarks to load, or refresh to try again.");
+      return;
+    }
+    pending.current.add(result.trackId);
+    setError("");
+    const config = { signal: controller.signal, headers: { Authorization: `Bearer ${token}` } };
+    try {
+      if (bookmarks.some((item) => item.trackId === result.trackId)) {
+        await api.delete(`/api/bookmarks/${result.trackId}`, config);
+        if (!controller.signal.aborted) setBookmarks((items) => items.filter((item) => item.trackId !== result.trackId));
+      } else {
+        await api.post("/api/bookmarks", result, config);
+        if (!controller.signal.aborted) setBookmarks((items) => [...items, result]);
+      }
+    } catch {
+      if (!controller.signal.aborted) setError("Could not update bookmark. Please try again.");
+    } finally {
+      pending.current.delete(result.trackId);
+    }
   };
-if (loggedIn){
-  loadBookmarks();
+
+  return <BookmarksContext.Provider value={{ bookmarks, toggleBookmark,
+    isBookmarked: (trackId) => bookmarks.some((item) => item.trackId === trackId) }}>
+    {error && <p role="alert" className="bg-red-950 text-white p-3">{error}</p>}
+    {children}
+  </BookmarksContext.Provider>;
 }
-}, [loggedIn]);
-// load bookmarks when logged in
-
-
-  return (
-    <BookmarksContext.Provider
-      value={{
-        bookmarks,
-        toggleBookmark,
-        isBookmarked
-       
-      }}
-    >
-      {children}
-    </BookmarksContext.Provider>
-  );
-};

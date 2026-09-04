@@ -24,7 +24,7 @@ const VolumeIcon = ({ volume, toggleMute }: Props) => {
     // select icon based on volume
 
     return (
-    <VolumeButton onClick={toggleMute}><Icon></Icon></VolumeButton>
+    <VolumeButton onClick={toggleMute} label={volume === 0 ? "Unmute preview" : "Mute preview"}><span aria-hidden="true"><Icon /></span></VolumeButton>
     )
 }
 

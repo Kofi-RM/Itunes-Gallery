@@ -12,7 +12,7 @@ const userSchema = new Schema({
     },
     password: {
  type: String,
-    required:true,
+    required: function () { return !this.githubId; },
     minlength: 8,
     },
     email: {
@@ -34,8 +34,7 @@ type:String,
     timestamps:true
 })
 
-userSchema.pre("save", async function (next) {
-       try {
+userSchema.pre("save", async function () {
     // Skip password hashing for users who signed up with GitHub OAuth.
     if (!this.password) return;
 
@@ -46,13 +45,11 @@ userSchema.pre("save", async function (next) {
     this.password = await bcrypt.hash(this.password, saltRounds);
 
     
-  } catch (err) {
-    console.log(err)
-  }
 })
 
 // Compare a plain-text password to the hashed password stored in the database.
 userSchema.methods.isCorrectPassword = async function (password) {
+  if (!this.password || typeof password !== "string") return false;
   return bcrypt.compare(password, this.password);
 };
  

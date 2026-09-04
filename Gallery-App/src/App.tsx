@@ -1,13 +1,15 @@
 
-import {Routes, Route} from "react-router-dom"
+import {Routes, Route, Navigate} from "react-router-dom"
 
 import './App.css'
 import GalleryDisplay from './nav/GalleryDisplay'
 import Register from "./nav/Register"
 import Login from "./nav/Login"
 import Profile from "./nav/Profile"
+import OAuthSuccess from "./nav/OAuthSuccess"
+import { useAuth } from "./auth/useAuth"
 function App() {
- 
+  const { loggedIn } = useAuth();
 
   return (
     <>
@@ -15,7 +17,9 @@ function App() {
       <Route path="/" element={<GalleryDisplay/>}/>
       <Route path="/register" element={<Register/>}/>
       <Route path="/login" element={<Login/>}/>
-      <Route path="/profile" element ={<Profile/>}/>
+      <Route path="/oauth-success" element={<OAuthSuccess/>}/>
+      <Route path="/dashboard" element={<Navigate to="/" replace/>}/>
+      <Route path="/profile" element={loggedIn ? <Profile/> : <Navigate to="/login" replace/>}/>
     </Routes>
    </>
   )

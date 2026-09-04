@@ -13,7 +13,10 @@ const ProfileCard = () => {
 //    console.log(src)
 
     return (
- <img onClick = {() => navigate("/profile")} className="rounded w-14 h-14"src={src}/>
+ <button onClick={() => navigate("/profile")} aria-label="Open profile and bookmarks"
+   className="min-w-11 min-h-11 rounded-full overflow-hidden">
+   <img className="w-11 h-11 object-cover" src={src} alt="" />
+ </button>
     )
 }
 

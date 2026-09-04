@@ -28,6 +28,7 @@ module.exports = {
   "_id username profileImageUrl email"
 ); // get profileImageUrl - data - from signed token doesnt have it
 
+if (!user) return res.status(401).json({ message: "Account no longer exists." });
 req.user = user;
     } catch (err) {
       console.log('Invalid token');

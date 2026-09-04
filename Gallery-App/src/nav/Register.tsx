@@ -19,10 +19,9 @@ const Register = () => {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-const {token, logout} = useAuth()
+const {token, logout, login} = useAuth()
 const navigate = useNavigate()
 const [passwordError, setPasswordError] = useState("");
-const [validReg, setValidReg] = useState(false)
   useEffect(() => {
     if (!token) {
   
@@ -42,8 +41,10 @@ const [validReg, setValidReg] = useState(false)
     try {
       setLoading(true);
       setError("");
-if (password != confirmPassword) throw Error;
-if (!emailRegex.test(email)) throw Error;
+if (username.trim().length < 4) throw new Error("Username must be at least 4 characters");
+if (password !== confirmPassword) throw new Error("Passwords do not match");
+if (!emailRegex.test(email)) throw new Error("Please enter a valid email");
+if (!isValidPassword(password)) throw new Error(validatePassword(password));
       // registration logic here
       const {data} = await api.post( `/api/users/register`,
         {
@@ -52,9 +53,8 @@ if (!emailRegex.test(email)) throw Error;
           password,
         })
 
-     console.log(data)
-      localStorage.setItem("gallery_token", data.token);
-      setValidReg(true)
+      login(data.token);
+      navigate("/", { replace: true });
         
 
     } catch (err:unknown) {
@@ -64,8 +64,9 @@ if (!emailRegex.test(email)) throw Error;
             if (!isValidPassword(password)) setError(validatePassword(password))
               if(password != confirmPassword) setError("Passwords do not match")
                 if (!emailRegex.test(email)) setError("Please enter a valid email")
+  } else {
+    setError(err instanceof Error ? err.message : "Failed to create account");
   }
-      
     } finally {
       setLoading(false);
     }
@@ -101,11 +102,6 @@ if (!emailRegex.test(email)) throw Error;
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-useEffect(() => {
-  if (validReg) {
- window.location.href = "/dashboard";
-  }
-},[validReg])
  return (
   <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-6">
     
