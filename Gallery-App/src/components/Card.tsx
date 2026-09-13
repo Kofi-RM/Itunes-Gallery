@@ -17,11 +17,11 @@ export default function Card({ result, onClick }: { result: Result; onClick: () 
       {result.previewUrl && <button onClick={onClick}
         aria-label={`Play ${result.trackName} from artwork`}
         className="hidden md:flex absolute inset-0 items-center justify-center rounded-md bg-black/0
-          opacity-0 group-hover:opacity-100 hover:bg-black/35 focus-visible:opacity-100 focus-visible:bg-black/35
+          opacity-0 group-hover:opacity-100 hover:bg-black/20 focus-visible:opacity-100 focus-visible:bg-black/20
           transition-colors transition-opacity">
         <span aria-hidden="true"
-          className="flex h-14 w-14 items-center justify-center rounded-full bg-green-500/95 text-2xl text-black shadow-xl
-            transition-transform group-hover:scale-105">
+          className="flex h-14 w-14 items-center justify-center text-4xl text-white/80 drop-shadow-lg
+            transition-transform group-hover:scale-110">
           ▶
         </span>
       </button>}
