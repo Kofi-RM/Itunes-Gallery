@@ -299,6 +299,45 @@ test('GitHub accounts may omit passwords, but local accounts may not', async () 
   assert.equal(await github.isCorrectPassword('anything'), false);
   const local = new User({ username: 'local-user', email: 'local@example.com' });
   await assert.rejects(local.validate(), (error) => !!error.errors.password);
+  const google = new User({ username: 'google-user', googleId: 'test-google-id' });
+  await google.validate();
+});
+
+test('OAuth routes derive HTTPS callbacks from the public backend request', async () => {
+  const registered = {};
+  const seen = [];
+  const router = {
+    get(path, ...callbacks) { registered[path] = callbacks; },
+    post() {},
+  };
+  const passport = {
+    oauthProviders: { github: true, google: true },
+    authenticate(provider, options) {
+      return (req, _res, next) => { seen.push({ provider, options }); req.user = { _id: 'oauth-user' }; next(); };
+    },
+  };
+  load('backend/routes/user.js', {
+    express: { Router: () => router },
+    '../models/User': {},
+    '../util/auth': { authMiddleware() {}, signToken: () => 'signed-token' },
+    '../util/passport': passport,
+    '../util/upload': { single: () => () => {} },
+    dotenv: { config() {} },
+  }, { process: { env: { NODE_ENV: 'production', FRONTEND_URL: 'https://gallery.example' } } });
+  async function invoke(path) {
+    const req = { protocol: 'https', get: () => 'api.example' };
+    const res = { redirect(url) { this.url = url; } };
+    const callbacks = registered[path];
+    let index = -1;
+    const next = () => { index += 1; if (callbacks[index]) return callbacks[index](req, res, next); };
+    await next();
+    return res;
+  }
+  await invoke('/auth/github');
+  assert.equal(seen[0].options.callbackURL, 'https://api.example/api/users/auth/github/callback');
+  const google = await invoke('/auth/google/callback');
+  assert.equal(seen[1].options.callbackURL, 'https://api.example/api/users/auth/google/callback');
+  assert.equal(google.url, 'https://gallery.example/oauth-success#token=signed-token&provider=google');
 });
 
 test('cards expose visible, named preview and bookmark buttons without hover', () => {

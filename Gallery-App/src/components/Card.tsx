@@ -10,9 +10,22 @@ export default function Card({ result, onClick }: { result: Result; onClick: () 
   const bookmarked = isBookmarked(result.trackId);
   const artwork = result.artworkUrl100 || "/itunes.jpg";
   return <article className="min-w-0 bg-zinc-900 rounded-lg p-2 sm:p-3 text-left">
-    <img src={artwork.replace("100x100", "300x300")} alt=""
-      loading="lazy" decoding="async" width={300} height={300}
-      className="w-full aspect-square object-cover rounded-md" />
+    <div className="relative group">
+      <img src={artwork.replace("100x100", "300x300")} alt=""
+        loading="lazy" decoding="async" width={300} height={300}
+        className="w-full aspect-square object-cover rounded-md" />
+      {result.previewUrl && <button onClick={onClick}
+        aria-label={`Play ${result.trackName} from artwork`}
+        className="hidden md:flex absolute inset-0 items-center justify-center rounded-md bg-black/0
+          opacity-0 group-hover:opacity-100 hover:bg-black/35 focus-visible:opacity-100 focus-visible:bg-black/35
+          transition-colors transition-opacity">
+        <span aria-hidden="true"
+          className="flex h-14 w-14 items-center justify-center rounded-full bg-green-500/95 text-2xl text-black shadow-xl
+            transition-transform group-hover:scale-105">
+          ▶
+        </span>
+      </button>}
+    </div>
     <p className="text-white font-semibold line-clamp-2 mt-2 break-words">{result.trackName}</p>
     <p className="text-zinc-400 text-sm line-clamp-2 break-words">{result.artistName}</p>
     <div className="flex flex-wrap items-center justify-between gap-1 mt-2">

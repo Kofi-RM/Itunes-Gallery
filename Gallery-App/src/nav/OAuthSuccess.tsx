@@ -11,6 +11,7 @@ export default function OAuthSuccess() {
   const [error, setError] = useState("");
   const [token] = useState(() => new URLSearchParams(window.location.hash.slice(1)).get("token")
     ?? new URLSearchParams(window.location.search).get("token"));
+  const [provider] = useState(() => new URLSearchParams(window.location.hash.slice(1)).get("provider"));
   const invalid = !token || isTokenExpired(token);
   const message = invalid ? "This sign-in link is invalid or expired. Please try again." : error;
 
@@ -27,10 +28,10 @@ export default function OAuthSuccess() {
       login(token);
       navigate("/", { replace: true });
     }).catch(() => {
-      if (!controller.signal.aborted) setError("Could not complete GitHub sign-in. Please try again.");
+      if (!controller.signal.aborted) setError(`Could not complete ${provider === "google" ? "Google" : "GitHub"} sign-in. Please try again.`);
     });
     return () => controller.abort();
-  }, [token, invalid, login, navigate]);
+  }, [token, invalid, provider, login, navigate]);
 
   return <main className="min-h-screen bg-zinc-950 text-white p-6">
     {message ? <><p role="alert">{message}</p><Link to="/login">Return to sign in</Link></>

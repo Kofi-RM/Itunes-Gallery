@@ -13,7 +13,13 @@ function Login() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string>("");
+  const [error, setError] = useState<string>(() => {
+    const reason = new URLSearchParams(window.location.search).get("oauthError");
+    if (reason?.endsWith("_not_configured")) return "That login provider is not configured yet.";
+    if (reason === "github") return "GitHub sign-in was cancelled or could not be completed.";
+    if (reason === "google") return "Google sign-in was cancelled or could not be completed.";
+    return "";
+  });
   const [showPassword, setShowPassword] = useState(false);
 const {token, login} = useAuth()
   const navigate = useNavigate()
@@ -175,12 +181,15 @@ const {token, login} = useAuth()
           </div>
         </div>
 
-        {/* github */}
+        <div className="grid gap-3">
         <button
-          onClick={() => {
-            window.location.href =
-              `${import.meta.env.VITE_API_URL}/api/users/auth/github`;
-          }}
+          onClick={() => { window.location.assign(`${import.meta.env.VITE_API_URL}/api/users/auth/google`); }}
+          className="w-full min-h-11 bg-white hover:bg-zinc-100 border border-zinc-300 text-black font-medium py-3 rounded-lg transition"
+        >
+          Continue with Google
+        </button>
+        <button
+          onClick={() => { window.location.assign(`${import.meta.env.VITE_API_URL}/api/users/auth/github`); }}
           className="
             w-full
             bg-[#181818]
@@ -195,6 +204,7 @@ const {token, login} = useAuth()
         >
           Continue with GitHub
         </button>
+        </div>
 
         {/* register link */}
         <div className="mt-6">

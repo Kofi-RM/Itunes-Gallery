@@ -1,59 +1,35 @@
-// Mongoose schema for users.
-// Supports both local email/password accounts and GitHub OAuth users.
-const mongoose = require("mongoose")
-const bcrypt = require("bcrypt")
-const {Schema} = mongoose;
+// Mongoose schema for local, GitHub, and Google accounts.
+const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
+const { Schema } = mongoose;
 
 const userSchema = new Schema({
-    username: {
- type: String,
-    required: true,
-    minlength: 4,
-    },
-    password: {
- type: String,
-    required: function () { return !this.githubId; },
+  username: { type: String, required: true, minlength: 4 },
+  password: {
+    type: String,
+    required: function () { return !this.githubId && !this.googleId; },
     minlength: 8,
-    },
-    email: {
- type: String,
-     required: function () {
-    return !this.githubId;
   },
+  email: {
+    type: String,
+    required: function () { return !this.githubId && !this.googleId; },
     minlength: 8,
     unique: true,
-    },
-    githubId: {
-type:String,
-    },
-
-    profileImageUrl: {
-      type:String
-    }
-}, {
-    timestamps:true
-})
+    sparse: true,
+  },
+  githubId: { type: String, unique: true, sparse: true },
+  googleId: { type: String, unique: true, sparse: true },
+  profileImageUrl: { type: String },
+}, { timestamps: true });
 
 userSchema.pre("save", async function () {
-    // Skip password hashing for users who signed up with GitHub OAuth.
-    if (!this.password) return;
+  if (!this.password || !this.isModified("password")) return;
+  this.password = await bcrypt.hash(this.password, 10);
+});
 
-    // Only hash when the password field is new or changed.
-    if (!this.isModified("password")) return;
-
-    const saltRounds = 10;
-    this.password = await bcrypt.hash(this.password, saltRounds);
-
-    
-})
-
-// Compare a plain-text password to the hashed password stored in the database.
 userSchema.methods.isCorrectPassword = async function (password) {
   if (!this.password || typeof password !== "string") return false;
   return bcrypt.compare(password, this.password);
 };
- 
 
-const User = mongoose.models.User || mongoose.model("User", userSchema);
-
-module.exports = User;
+module.exports = mongoose.models.User || mongoose.model("User", userSchema);

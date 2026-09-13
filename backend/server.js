@@ -12,6 +12,8 @@ require('dotenv').config();
  
 const app = express();
 const PORT = process.env.PORT || 3001;
+// Render and other reverse proxies provide the original HTTPS scheme here.
+app.set("trust proxy", 1);
  
 
 // Parse incoming form-encoded and JSON request bodies.

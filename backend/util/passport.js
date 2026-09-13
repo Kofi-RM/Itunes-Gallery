@@ -1,49 +1,84 @@
-// Passport configuration for GitHub OAuth.
-// This file registers the GitHub strategy and serializes users for session handling.
-const passport = require('passport');
-const GitHubStrategy = require('passport-github2').Strategy;
-const User = require('../models/User');
- 
-passport.use(
-  new GitHubStrategy(
-    {
-      clientID: process.env.GITHUB_CLIENT_ID,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET,
-      callbackURL: process.env.GITHUB_CALLBACK_URL, // e.g., 'http://localhost:3001/api/users/auth/github/callback'
-    },
-    // This is the "verify" callback executed after GitHub returns a user profile.
-    async (accessToken, refreshToken, profile, done) => {
-      try {
-        // Look for an existing user with the GitHub account id.
-        const existingUser = await User.findOne({ githubId: profile.id });
- 
-        if (existingUser) {
-          return done(null, existingUser);
-        }
- 
-        // Create a new user record for first-time GitHub logins.
-        const newUser = new User({
-          githubId: profile.id,
-          username: profile.username?.length >= 4 ? profile.username : `github-${profile.username || profile.id}`,
-          email: profile.emails?.[0]?.value, // Some providers return an array of emails
-        });
- 
-        await newUser.save();
-        done(null, newUser);
-      } catch (err) {
-        done(err);
-      }
-    }
-  )
-);
- 
-// These functions are only required if using sessions with passport.
-passport.serializeUser((user, done) => {
-  done(null, user.id);
-});
- 
-passport.deserializeUser((id, done) => {
-  User.findById(id, (err, user) => done(err, user));
-});
+require("dotenv").config();
+const passport = require("passport");
+const GitHubStrategy = require("passport-github2").Strategy;
+const GoogleStrategy = require("passport-google-oauth20").Strategy;
+const User = require("../models/User");
 
-module.exports = passport
+const providers = {
+  github: Boolean(process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET),
+  google: Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET),
+};
+
+function usableUsername(username, provider, id) {
+  const value = typeof username === "string" ? username.trim() : "";
+  return value.length >= 4 ? value : `${provider}-${value || id}`;
+}
+
+async function findOrCreateOAuthUser({ provider, id, username, emailInfo, profileImageUrl }) {
+  const idField = `${provider}Id`;
+  let user = await User.findOne({ [idField]: id });
+  if (user) return user;
+
+  const email = emailInfo?.value?.toLowerCase();
+  // Only join an OAuth identity to an existing account when the provider
+  // explicitly reports that it verified the address.
+  if (email && emailInfo.verified === true) {
+    user = await User.findOne({ email });
+    if (user) {
+      user[idField] = id;
+      if (!user.profileImageUrl && profileImageUrl) user.profileImageUrl = profileImageUrl;
+      await user.save();
+      return user;
+    }
+  }
+
+  user = new User({
+    [idField]: id,
+    username: usableUsername(username, provider, id),
+    email,
+    profileImageUrl,
+  });
+  await user.save();
+  return user;
+}
+
+if (providers.github) {
+  passport.use(new GitHubStrategy({
+    clientID: process.env.GITHUB_CLIENT_ID,
+    clientSecret: process.env.GITHUB_CLIENT_SECRET,
+  }, async (_accessToken, _refreshToken, profile, done) => {
+    try {
+      done(null, await findOrCreateOAuthUser({
+        provider: "github",
+        id: profile.id,
+        username: profile.username || profile.displayName,
+        emailInfo: profile.emails?.[0],
+        profileImageUrl: profile.photos?.[0]?.value,
+      }));
+    } catch (error) {
+      done(error);
+    }
+  }));
+}
+
+if (providers.google) {
+  passport.use(new GoogleStrategy({
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  }, async (_accessToken, _refreshToken, profile, done) => {
+    try {
+      done(null, await findOrCreateOAuthUser({
+        provider: "google",
+        id: profile.id,
+        username: profile.displayName,
+        emailInfo: profile.emails?.[0],
+        profileImageUrl: profile.photos?.[0]?.value,
+      }));
+    } catch (error) {
+      done(error);
+    }
+  }));
+}
+
+passport.oauthProviders = providers;
+module.exports = passport;
