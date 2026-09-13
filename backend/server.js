@@ -40,6 +40,9 @@ app.use(cors({
   credentials: true
 }));
 
+// Fast readiness check that does not wait on external APIs or MongoDB queries.
+app.get("/health", (req, res) => res.status(200).json({ status: "ok" }));
+
 app.use("/api/search", search);
 app.use("/api/users", user)
 app.use("/api/bookmarks", bookmark)
