@@ -10,6 +10,10 @@ import OAuthSuccess from "./nav/OAuthSuccess"
 import { useAuth } from "./auth/useAuth"
 function App() {
   const { loggedIn } = useAuth();
+  // OAuth returns through `/` so this also works on static hosts that do not
+  // rewrite direct requests for `/oauth-success` to index.html.
+  const completingOAuth = window.location.hash.startsWith("#token=");
+  if (completingOAuth) return <OAuthSuccess />;
 
   return (
     <>

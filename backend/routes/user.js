@@ -22,7 +22,9 @@ const providerAvailable = (provider) => (req, res, next) => {
 };
 const finishOAuth = (provider) => (req, res) => {
   const token = signToken(req.user);
-  res.redirect(frontendPath(`/oauth-success#token=${encodeURIComponent(token)}&provider=${provider}`));
+  // Return through the static site's root so hosting does not need an SPA
+  // rewrite merely to load the OAuth completion component.
+  res.redirect(frontendPath(`/#token=${encodeURIComponent(token)}&provider=${provider}`));
 };
 const authenticate = (provider, options = {}) => (req, res, next) =>
   passport.authenticate(provider, {

@@ -337,7 +337,7 @@ test('OAuth routes derive HTTPS callbacks from the public backend request', asyn
   assert.equal(seen[0].options.callbackURL, 'https://api.example/api/users/auth/github/callback');
   const google = await invoke('/auth/google/callback');
   assert.equal(seen[1].options.callbackURL, 'https://api.example/api/users/auth/google/callback');
-  assert.equal(google.url, 'https://gallery.example/oauth-success#token=signed-token&provider=google');
+  assert.equal(google.url, 'https://gallery.example/#token=signed-token&provider=google');
 });
 
 test('cards expose visible, named preview and bookmark buttons without hover', () => {
